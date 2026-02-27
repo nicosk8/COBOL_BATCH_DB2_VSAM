@@ -1,0 +1,352 @@
+       IDENTIFICATION DIVISION.                                         00010000
+      *                                                        *        00010500
+        PROGRAM-ID PGMAPAR2.                                            00011001
+      **********************************************************        00012000
+      *                                                        *        00013000
+      *  PROGRAMA PARA VSAM KSDS                               *        00014000
+      **********************************************************        00017400
+      *      MANTENIMIENTO DE PROGRAMA                         *        00018000
+      **********************************************************        00019000
+      *  FECHA   *    DETALLE        * COD *                            00019100
+      **************************************                            00019200
+      *          *                   *     *                            00019300
+      *          *                   *     *                            00019400
+      **************************************                            00019500
+       ENVIRONMENT DIVISION.                                            00020000
+       CONFIGURATION SECTION.                                           00020100
+       SPECIAL-NAMES.                                                   00020200
+           DECIMAL-POINT IS COMMA.                                      00020300
+                                                                        00020400
+       INPUT-OUTPUT SECTION.                                            00020500
+       FILE-CONTROL.                                                    00020600
+             SELECT CLIENTE ASSIGN DDCLI                                00020701
+             ACCESS IS SEQUENTIAL                                       00021218
+             FILE STATUS IS FS-CLI-CODE.                                00021402
+                                                                        00021500
+             SELECT BAJAS   ASSIGN DDBAJAS                              00021601
+             ACCESS IS SEQUENTIAL                                       00021800
+             FILE STATUS IS FS-BAJA-CODE.                               00022102
+                                                                        00022203
+             SELECT SALIDA  ASSIGN DDSAL                                00022303
+             ACCESS IS SEQUENTIAL                                       00022403
+             FILE STATUS IS FS-SAL-CODE.                                00022508
+                                                                        00022603
+                                                                        00023000
+       DATA DIVISION.                                                   00039000
+       FILE SECTION.                                                    00039100
+       FD CLIENTE                                                       00039218
+            BLOCK CONTAINS 0 RECORDS                                    00039317
+            RECORDING MODE IS F.                                        00039417
+                                                                        00039500
+       01 REG-CLIENTE PIC X(30).                                        00039617
+                                                                        00040100
+       FD BAJAS                                                         00040201
+            BLOCK CONTAINS 0 RECORDS                                    00040300
+            RECORDING MODE IS F.                                        00040400
+                                                                        00040500
+       01 REG-BAJAS      PIC X(05).                                     00040601
+                                                                        00040704
+       FD SALIDA                                                        00040804
+            BLOCK CONTAINS 0 RECORDS                                    00040904
+            RECORDING MODE IS F.                                        00041004
+                                                                        00041104
+       01 FD-REG-SALIDA     PIC X(30).                                  00041204
+                                                                        00041304
+                                                                        00041400
+      **************************************                            00041500
+       WORKING-STORAGE SECTION.                                         00041600
+      **************************************                            00041700
+       77  FILLER        PIC X(26) VALUE '* INICIO WORKING-STORAGE *'.  00041800
+       77  FILLER        PIC X(26) VALUE '* CODIGOS RETORNO FILES  *'.  00041900
+       77  FS-CLI-CODE       PIC XX    VALUE SPACES.                    00042002
+       77  FS-BAJA-CODE      PIC XX    VALUE SPACES.                    00042102
+       77  FS-SAL-CODE       PIC XX    VALUE SPACES.                    00042209
+                                                                        00042300
+       01  WS-STATUS-FIN    PIC X.                                      00042400
+           88  WS-FIN-LECTURA         VALUE 'Y'.                        00042500
+           88  WS-NO-FIN-LECTURA      VALUE 'N'.                        00042600
+                                                                        00042700
+       01  WS-STA-CLIENTE   PIC X.                                      00042801
+           88  WS-FIN-CLIENTE         VALUE 'Y'.                        00042901
+           88  WS-NO-FIN-CLIENTE      VALUE 'N'.                        00043001
+                                                                        00043100
+       01  WS-STA-BAJAS     PIC X.                                      00043201
+           88  WS-FIN-BAJAS           VALUE 'Y'.                        00043301
+           88  WS-NO-FIN-BAJAS        VALUE 'N'.                        00043401
+                                                                        00043500
+                                                                        00044900
+      *  COPY DE ARCHIVO MAESTRO Y DISE¬O DE SALIDA                     00045001
+         COPY CLIENTE.                                                  00046001
+                                                                        00046106
+      *********************************************                     00051919
+      *   CLAVES PARA APAREAR CLIENTE-BAJAS       *                     00052019
+      ******************************************* *                     00052119
+       01 WS-CLAVE1.                                                    00052219
+          03 WS-CLIENTE-NRO        PIC 9(05).                           00052319
+                                                                        00052419
+       01 WS-CLAVE2.                                                    00052519
+          03 WS-CLIENTE-BAJA       PIC 9(05).                           00052619
+                                                                        00052719
+      ********     MASCARA DE IMPRESION DE TOTALES *                    00052820
+                                                                        00052920
+       77 WS-MOSTRAR-VALORES     PIC ZZZZ9       VALUE ZEROS.           00053022
+                                                                        00053120
+      ********     CONTADOR DE LEIDOS Y GRABADOS  *                     00053220
+                                                                        00053320
+       77  WS-LEIDOS-CLIENTE    PIC 9(05)        VALUE ZEROS.           00053420
+       77  WS-LEIDOS-BAJAS      PIC 9(05)        VALUE ZEROS.           00053520
+       77  WS-GRABADOS-SALIDA   PIC 9(05)        VALUE ZEROS.           00053620
+       77  WS-ENCONTRADOS       PIC 9(05)        VALUE ZEROS.           00053720
+       77  WS-NO-ENCONTRADOS    PIC 9(05)        VALUE ZEROS.           00053820
+                                                                        00053920
+      ********     CONSTANTES       ***************                     00054020
+       77  WS-LEYEN-CLIENTE     PIC X(35) VALUE                         00054120
+                        'CANTIDAD DE LEIDOS CLIENTES  :   '.            00054220
+                                                                        00054320
+       77  WS-LEYEN-BAJAS       PIC X(35) VALUE                         00054420
+                        'CANTIDAD DE LEIDOS NOVEDADES :   '.            00054520
+                                                                        00054620
+                                                                        00054720
+       77  WS-LEYEN-ENCONTRADOS PIC X(35) VALUE                         00054820
+                        'CANTIDAD ENCONTRADOS          :  '.            00054920
+                                                                        00055020
+       77  WS-LEYEN-NO-ENCONTRADOS PIC X(35) VALUE                      00055120
+                        'CANTIDAD DE NO ENCONTRADOS    :  '.            00055220
+                                                                        00055320
+      ********     FECHA DE PROCESO ***************                     00055420
+       01  WS-FECHA.                                                    00055520
+           03  WS-FECHA-AA      PIC 99            VALUE ZEROS.          00055620
+           03  WS-FECHA-MM      PIC 99            VALUE ZEROS.          00055720
+           03  WS-FECHA-DD      PIC 99            VALUE ZEROS.          00055820
+                                                                        00055920
+       77  FILLER        PIC X(26) VALUE '* FINAL  WORKING-STORAGE *'.  00056020
+                                                                        00056120
+      ***************************************************************.  00056220
+       PROCEDURE DIVISION.                                              00056320
+      **************************************                            00056420
+      *                                    *                            00056520
+      *  CUERPO PRINCIPAL DEL PROGRAMA     *                            00056620
+      *                                    *                            00056720
+      **************************************                            00057000
+       MAIN-PROGRAM.                                                    00060000
+                                                                        00060100
+           PERFORM 1000-INICIO  THRU   F-1000-INICIO.                   00060200
+                                                                        00060300
+           PERFORM 2000-PROCESO  THRU  F-2000-PROCESO                   00060400
+                   UNTIL WS-FIN-LECTURA.                                00060700
+                                                                        00060800
+           PERFORM 9999-FINAL    THRU  F-9999-FINAL.                    00061200
+                                                                        00061300
+       F-MAIN-PROGRAM. GOBACK.                                          00061400
+                                                                        00061500
+      **************************************                            00061600
+      *                                    *                            00061700
+      *  CUERPO INICIO APERTURA ARCHIVOS   *                            00061800
+      *                                    *                            00061900
+      **************************************                            00062000
+       1000-INICIO.                                                     00062100
+           ACCEPT WS-FECHA FROM DATE.                                   00063000
+                                                                        00063200
+                                                                        00065000
+           SET WS-NO-FIN-LECTURA TO TRUE.                               00070200
+           MOVE 'NO' TO WS-STATUS-FIN                                   00070300
+                                                                        00070400
+           OPEN INPUT  CLIENTE.                                         00071001
+           IF FS-CLI-CODE IS NOT EQUAL '00'                             00071102
+              DISPLAY '* ERROR EN OPEN CLIENTE   = ' FS-CLI-CODE        00071202
+              MOVE 9999 TO RETURN-CODE                                  00071300
+              SET  WS-FIN-LECTURA TO TRUE                               00071400
+           END-IF.                                                      00071500
+                                                                        00071600
+           OPEN INPUT  BAJAS.                                           00071901
+           IF FS-BAJA-CODE IS NOT EQUAL '00'                            00072002
+              DISPLAY '* ERROR EN OPEN BAJAS   = ' FS-BAJA-CODE         00072103
+              MOVE 9999 TO RETURN-CODE                                  00072200
+              SET  WS-FIN-LECTURA TO TRUE                               00072300
+           END-IF.                                                      00072400
+                                                                        00075600
+                                                                        00075703
+           OPEN OUTPUT SALIDA.                                          00075803
+           IF FS-SAL-CODE IS NOT EQUAL '00'                             00075908
+              DISPLAY '* ERROR EN OPEN SALIDA  = ' FS-SAL-CODE          00076008
+              MOVE 9999 TO RETURN-CODE                                  00076103
+              SET  WS-FIN-LECTURA TO TRUE                               00076203
+           END-IF.                                                      00076303
+                                                                        00076403
+            PERFORM 3000-LEER-CLIENTE THRU F-3000-LEER-CLIENTE.         00076503
+            PERFORM 4000-LEER-BAJAS  THRU F-4000-LEER-BAJAS.            00076603
+                                                                        00076703
+       F-1000-INICIO.   EXIT.                                           00076800
+                                                                        00076900
+      **************************************                            00077000
+      *                                    *                            00077100
+      *  CUERPO PRINCIPAL DE PROCESOS      *                            00077200
+      *  LECTURA FILE INPUT CLASIFICADO    *                            00077300
+      *  APAREO ARCHIVOS DE ENTRADA        *                            00077400
+      *                                    *                            00077500
+      **************************************                            00077600
+       2000-PROCESO.                                                    00077700
+                                                                        00077800
+           IF WS-CLAVE1 = WS-CLAVE2                                     00077919
+                                                                        00078019
+      *  SI SON IGUALES, MUESTRO EL REGISTRO DADO DE BAJA               00078119
+              ADD 1 TO WS-ENCONTRADOS                                   00078219
+              MOVE WS-CLIENTE-BAJA TO WS-MOSTRAR-VALORES                00079019
+              DISPLAY 'REG. DADO DE BAJA. CLIENTE NRO: ',               00080019
+                                                     WS-MOSTRAR-VALORES 00081019
+                                                                        00081119
+              PERFORM 3000-LEER-CLIENTE THRU F-3000-LEER-CLIENTE        00081219
+              PERFORM 4000-LEER-BAJAS  THRU F-4000-LEER-BAJAS           00081319
+                                                                        00081419
+           ELSE                                                         00081519
+                                                                        00081619
+              IF WS-CLAVE1 > WS-CLAVE2                                  00081719
+                                                                        00081819
+      * SI CLAVE1 ES MAYOR A CLAVE2 ENTONCES ARMO SALIDA DESDE 'BAJAS'  00081919
+      * YA QUE NO ENCONTRO CUENTA PARA ACTUALIZAR                       00082019
+                                                                        00082119
+                 ADD 1 TO WS-NO-ENCONTRADOS                             00082223
+                 MOVE WS-CLIENTE-BAJA TO WS-MOSTRAR-VALORES             00082319
+                 DISPLAY ' '                                            00082423
+                 DISPLAY 'REG. NO EXISTENTE EN ARCHIVO CLIENTE'         00082523
+                 DISPLAY 'NRO. CLIENTE :  ' WS-MOSTRAR-VALORES          00082623
+                 DISPLAY ' '                                            00082723
+                                                                        00082823
+                                                                        00082923
+                 PERFORM 4000-LEER-BAJAS  THRU F-4000-LEER-BAJAS        00083023
+                                                                        00083123
+              ELSE                                                      00083223
+                                                                        00083323
+      * SI CLAVE1 ES MENOR A CLAVE2, GRABO EL REG. DE SALIDA            00083423
+      * Y CONTINUO LEYENDO DESDE CLIENTES, YA QUE LA CUENTA             00083523
+      * NO TIENE MOVIMIENTOS.                                           00083623
+                                                                        00083723
+                 PERFORM 2500-GRABAR-SALIDA  THRU F-2500-GRABAR-SALIDA  00083823
+                 PERFORM 3000-LEER-CLIENTE THRU F-3000-LEER-CLIENTE     00083919
+              END-IF                                                    00084019
+           END-IF.                                                      00084119
+                                                                        00084219
+      *************************************************************     00084319
+      * CONTROL FIN DE ARCHIVOS DE ENTRADA, PARA FIN PROGRAMA           00084419
+      *************************************************************     00084519
+                                                                        00084619
+           IF WS-FIN-CLIENTE AND WS-FIN-BAJAS                           00084719
+              SET  WS-FIN-LECTURA TO TRUE                               00084819
+           END-IF.                                                      00084919
+                                                                        00085019
+       F-2000-PROCESO. EXIT.                                            00085119
+                                                                        00085219
+      **************************************                            00085319
+      * GRABAR ARCHIVO DE SALIDA APAREO    *                            00085419
+      **************************************                            00085519
+       2500-GRABAR-SALIDA.                                              00085619
+                                                                        00085719
+           WRITE FD-REG-SALIDA FROM WS-REG-CLIENTE                      00085819
+                                                                        00085919
+           EVALUATE FS-SAL-CODE                                         00086019
+             WHEN '00'                                                  00086119
+                  ADD 1 TO WS-GRABADOS-SALIDA                           00086219
+                                                                        00086319
+           WHEN OTHER                                                   00086419
+                  DISPLAY '* ERROR EN GRABAR SALIDA   = ' FS-SAL-CODE   00086519
+                  MOVE 9999 TO RETURN-CODE                              00086619
+                                                                        00086719
+           END-EVALUATE.                                                00086819
+                                                                        00086919
+       F-2500-GRABAR-SALIDA. EXIT.                                      00087019
+                                                                        00087119
+                                                                        00087219
+      **************************************                            00087319
+      * LECTURA CLIENTE                    *                            00087419
+      **************************************                            00087519
+       3000-LEER-CLIENTE.                                               00087619
+                                                                        00087719
+           READ CLIENTE INTO WS-REG-CLIENTE                             00087819
+                                                                        00087919
+           EVALUATE FS-CLI-CODE                                         00088019
+             WHEN '00'                                                  00088119
+                  ADD 1 TO WS-LEIDOS-CLIENTE                            00088219
+                  MOVE WS-CLI-NRO TO WS-CLIENTE-NRO                     00088319
+                                                                        00088419
+              WHEN '10'                                                 00088519
+                  SET WS-FIN-CLIENTE TO TRUE                            00088619
+                  MOVE HIGH-VALUE TO WS-CLAVE1                          00088719
+                                                                        00088819
+           WHEN OTHER                                                   00088919
+              DISPLAY '* ERROR EN LECTURA CLIENTE   = ' FS-CLI-CODE     00089019
+                  MOVE 9999 TO RETURN-CODE                              00089119
+                  SET WS-FIN-CLIENTE TO TRUE                            00089219
+                                                                        00089319
+           END-EVALUATE.                                                00089419
+                                                                        00089519
+                                                                        00089619
+       F-3000-LEER-CLIENTE. EXIT.                                       00090019
+      **************************************                            00090219
+      * LECTURA BAJAS                      *                            00090319
+      **************************************                            00090419
+       4000-LEER-BAJAS.                                                 00090519
+                                                                        00090619
+           READ BAJAS  INTO WS-CLAVE2                                   00090719
+                                                                        00090819
+           EVALUATE FS-BAJA-CODE                                        00090919
+             WHEN '00'                                                  00091019
+                  ADD 1 TO WS-LEIDOS-BAJAS                              00091119
+                                                                        00091319
+              WHEN '10'                                                 00091419
+                  SET WS-FIN-BAJAS   TO TRUE                            00091519
+                  MOVE HIGH-VALUE TO WS-CLAVE2                          00091619
+                                                                        00091719
+           WHEN OTHER                                                   00091819
+                  DISPLAY '* ERROR EN LECTURA BAJAS   = ' FS-BAJA-CODE  00091919
+                  MOVE 9999 TO RETURN-CODE                              00092019
+                  SET WS-FIN-BAJAS   TO TRUE                            00092119
+                                                                        00092219
+           END-EVALUATE.                                                00092319
+                                                                        00092419
+       F-4000-LEER-BAJAS. EXIT.                                         00092519
+                                                                        00092619
+                                                                        00092719
+      **************************************                            00092919
+      *                                    *                            00093019
+      *  CUERPO FINAL CIERRE DE FILES      *                            00093119
+      *                                    *                            00093219
+      **************************************                            00093319
+       9999-FINAL.                                                      00093419
+                                                                        00093519
+           CLOSE CLIENTE.                                               00093619
+              IF FS-CLI-CODE IS NOT EQUAL '00'                          00093719
+                DISPLAY '* ERROR EN CLOSE CLIENTE   = '                 00093819
+                                            FS-CLI-CODE                 00093919
+                MOVE 9999 TO RETURN-CODE                                00094019
+                SET WS-FIN-LECTURA TO TRUE                              00094119
+             END-IF.                                                    00094219
+                                                                        00094319
+           CLOSE  BAJAS                                                 00094419
+              IF FS-BAJA-CODE IS NOT EQUAL '00'                         00094519
+                DISPLAY '* ERROR EN CLOSE BAJAS    ='                   00094619
+                                            FS-BAJA-CODE                00094719
+                MOVE 9999 TO RETURN-CODE                                00094819
+                SET WS-FIN-LECTURA TO TRUE                              00094919
+           END-IF.                                                      00095019
+                                                                        00095119
+           CLOSE  SALIDA                                                00095219
+              IF FS-SAL-CODE IS NOT EQUAL '00'                          00095319
+                DISPLAY '* ERROR EN CLOSE SALIDA   ='                   00095419
+                                            FS-SAL-CODE                 00095519
+                MOVE 9999 TO RETURN-CODE                                00095619
+                SET WS-FIN-LECTURA TO TRUE                              00095719
+           END-IF.                                                      00095819
+                                                                        00095919
+                                                                        00096019
+      **************************************                            00096119
+      *   MOSTRAR TOTALES DE CONTROL                                    00096219
+      **************************************                            00096319
+                                                                        00096419
+           DISPLAY WS-LEYEN-CLIENTE WS-LEIDOS-CLIENTE.                  00096519
+           DISPLAY WS-LEYEN-BAJAS WS-LEIDOS-BAJAS.                      00096619
+           DISPLAY WS-LEYEN-ENCONTRADOS WS-ENCONTRADOS.                 00096719
+           DISPLAY WS-LEYEN-NO-ENCONTRADOS WS-NO-ENCONTRADOS.           00096819
+                                                                        00096919
+       F-9999-FINAL.                                                    00097019
+           EXIT.                                                        00100019
+      *                                                                 00200019

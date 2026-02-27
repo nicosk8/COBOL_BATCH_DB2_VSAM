@@ -1,0 +1,384 @@
+      **********************************************************        00012000
+      *                                                        *        00013000
+      *  PARA VER DEFINICION ARCHIVO VSAM KSDS                 *        00014000
+      *  ACCESO SECUENCIAL                                     *        00014100
+      *                                                        *        00014400
+      **********************************************************        00014500
+      *      MANTENIMIENTO DE PROGRAMA                         *        00014600
+      **********************************************************        00014700
+      *  FECHA   *    DETALLE        * COD *                            00014800
+      **************************************                            00014900
+      *          *                   *     *                            00015000
+      *          *                   *     *                            00016000
+      **************************************                            00017000
+       IDENTIFICATION DIVISION.                                         00010000
+       PROGRAM-ID PGMVSAM.                                              00011005
+       ENVIRONMENT DIVISION.                                            00020000
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+       INPUT-OUTPUT SECTION.                                            00020200
+       FILE-CONTROL.                                                    00020300
+             SELECT NOVEDAD  ASSIGN DDNOVE                              00020702
+                    FILE STATUS IS WS-NOV-CODE.                         00020808
+
+             SELECT CLIENTE  ASSIGN DDCLIE                              00020402
+                    ORGANIZATION IS INDEXED
+                    ACCESS MODE IS SEQUENTIAL
+                    RECORD KEY IS CLI-KEY
+                    FILE STATUS IS WS-CLI-CODE.                         00020508
+                                                                        00020600
+                                                                        00020900
+             SELECT SALIDA  ASSIGN DDSALI                               00021002
+                    FILE STATUS IS WS-SAL-CODE.                         00022006
+                                                                        00023000
+       DATA DIVISION.                                                   00039000
+       FILE SECTION.                                                    00039100
+       FD NOVEDAD                                                       00039802
+            BLOCK CONTAINS 0 RECORDS                                    00039900
+            RECORDING MODE IS F.                                        00040000
+
+       01 REG-NOVEDAD PIC X(50).
+                                                                        00040100
+       FD CLIENTE.                                                      00039202
+
+       01 REG-CLI-IN.
+          03 CLI-KEY.
+             05 CLI-TIP-DOC PIC X(02).
+             05 CLI-NRO-DOC PIC 9(11).
+          03 FILLER         PIC X(04).
+          03 ALT-KEY.
+             05 K-CLI-NRO   PIC 9(03).
+          03 FILLER         PIC X(30).
+                                                                        00040300
+       FD SALIDA                                                        00040400
+
+            BLOCK CONTAINS 0 RECORDS                                    00039900
+            RECORDING MODE IS F.                                        00040000
+
+       01 REG-CLIENTE PIC X(50).
+                                                                        00040900
+      **************************************                            00041000
+       WORKING-STORAGE SECTION.                                         00041100
+      **************************************                            00041200
+       77  FILLER        PIC X(26) VALUE '* INICIO WORKING-STORAGE *'.  00041300
+       77  FILLER        PIC X(26) VALUE '* CODIGOS RETORNO FILES  *'.  00041400
+      **************************************                            00042010
+      *        CONTROL DE FINAL           *                             00042110
+      **************************************                            00042210
+       77  WS-NOV-CODE   PIC XX    VALUE ZEROS.
+       77  WS-CLI-CODE   PIC XX    VALUE ZEROS.
+       77  WS-SAL-CODE   PIC XX    VALUE ZEROS.
+
+       01 WS-STATUS-FIN     PIC X.
+          88 WS-FIN-LECTURA         VALUE 'Y'.
+          88 WS-NO-FIN-LECTURA      VALUE 'N'.
+
+       01 WS-VALIDACION     PIC X.
+          88 WS-SI                  VALUE 'Y'.
+          88 WS-NO                  VALUE 'N'.
+      **************************************                            00043700
+      *       LAYOUT VSAM CLIENTES         *                            00043810
+      **************************************                            00043900
+       COPY CPCLIE.
+      ************************************
+      *       LAYOUT CLASE               *
+      ************************************
+       COPY CPNOVCLI.
+      ************************************
+      *          LAYOUT SALIDA           *
+      ************************************
+       COPY CPCLIENS.
+      ************************************                              00050900
+      *          CONTADORES              *
+      ************************************
+       01 WS-CONTADORES.
+          03 WS-NOVEDADES-LEIDAS   PIC 9(03)  VALUE ZEROS.
+          03 WS-NOVEDADES-NOTFOUND PIC 9(03)  VALUE ZEROS.
+          03 WS-NOVEDADES-ERRONEAS PIC 9(03)  VALUE ZEROS.
+          03 WS-GRABADOS           PIC 9(03)  VALUE ZEROS.
+      ************************************                              00050900
+      *        VARIABLES RANDOM          *
+      ************************************
+       77 WS-SUMA-SALDO            PIC S9(07) VALUE ZEROS.
+      ************************************                              00050900
+      *         FECHA DE PROCESO         *
+      ************************************
+       01  WS-FECHA.                                                    00051400
+           03  WS-FECHA-AA      PIC 9(04)         VALUE ZEROS.          00051500
+           03  WS-FECHA-MM      PIC 9(02)         VALUE ZEROS.          00051600
+           03  WS-FECHA-DD      PIC 9(02)         VALUE ZEROS.          00051700
+
+       77 FILLER        PIC X(26) VALUE '* FINAL  WORKING-STORAGE *'.   00050800
+      ***************************************************************.  00051000
+       PROCEDURE DIVISION.                                              00051100
+      **************************************                            00052000
+      *  CUERPO PRINCIPAL DEL PROGRAMA     *                            00054000
+      *                                    *                            00056000
+      **************************************                            00057000
+       MAIN-PROGRAM.                                                    00060000
+                                                                        00060100
+           PERFORM 1000-INICIO  THRU   F-1000-INICIO.                   00060200
+                                                                        00060300
+           PERFORM 2000-PROCESO  THRU  F-2000-PROCESO                   00060400
+                   UNTIL WS-FIN-LECTURA.                                00060700
+                                                                        00060800
+           PERFORM 9999-FINAL    THRU  F-9999-FINAL.                    00061200
+                                                                        00061300
+       F-MAIN-PROGRAM. GOBACK.                                          00061400
+                                                                        00061500
+      **************************************                            00061600
+      *                                    *                            00061700
+      *  CUERPO INICIO APERTURA ARCHIVOS   *                            00061800
+      *                                    *                            00061900
+      **************************************                            00062000
+       1000-INICIO.                                                     00062100
+
+           ACCEPT WS-FECHA FROM DATE.
+
+           SET WS-NO-FIN-LECTURA TO TRUE.                               00070200
+
+           OPEN INPUT  NOVEDAD.                                         00071900
+
+           IF WS-NOV-CODE IS NOT EQUAL '00'                             00072000
+              DISPLAY '* ERROR EN OPEN CLASE  = ' WS-NOV-CODE           00072100
+              MOVE 9999 TO RETURN-CODE                                  00072200
+              SET  WS-FIN-LECTURA TO TRUE                               00072300
+           END-IF.                                                      00072400
+
+           OPEN INPUT  CLIENTE.                                         00071000
+
+           IF WS-CLI-CODE IS NOT EQUAL '00'                             00071100
+              DISPLAY '* ERROR EN OPEN CLIENTE = ' WS-CLI-CODE          00071200
+              MOVE 9999 TO RETURN-CODE                                  00071300
+              SET  WS-FIN-LECTURA TO TRUE                               00071400
+           END-IF.                                                      00071500
+                                                                        00075600
+           OPEN OUTPUT SALIDA.                                          00075700
+
+           IF WS-SAL-CODE IS NOT EQUAL '00'                             00075800
+              DISPLAY '* ERROR EN OPEN SALIDA  = ' WS-SAL-CODE          00075900
+              MOVE 9999 TO RETURN-CODE                                  00076000
+              SET  WS-FIN-LECTURA TO TRUE                               00076100
+           END-IF.                                                      00076200
+                                                                        00076300
+           PERFORM 3000-I-LEER-CLI   THRU 3000-F-LEER-CLI.              00076400
+
+           PERFORM 4000-I-LEER-NOV   THRU 4000-F-LEER-NOV.              00076500
+                                                                        00076700
+       F-1000-INICIO.   EXIT.                                           00076800
+                                                                        00076900
+      **************************************                            00077000
+      *  CUERPO PRINCIPAL DE PROCESOS      *                            00077200
+      **************************************                            00077600
+       2000-PROCESO.                                                    00077700
+
+            PERFORM 2500-I-APAREO THRU 2500-F-APAREO.
+
+            IF WS-CLI-CLAVE = HIGH-VALUE AND WS-NOV-CLAVE = HIGH-VALUE
+               SET WS-FIN-LECTURA TO TRUE
+            END-IF.
+
+       F-2000-PROCESO. EXIT.
+      **************************************
+      *    ORGANIZAR ARCHIVOS              *
+      **************************************
+       2500-I-APAREO.
+
+           IF WS-SI
+
+             IF WS-CLI-CLAVE = WS-NOV-CLAVE                              0007800
+               ADD WS-CLI-SALDO TO CLI-SALDO GIVING WS-SUMA-SALDO
+               PERFORM 4000-I-LEER-NOV THRU 4000-F-LEER-NOV              0007850
+
+             ELSE                                                        0007870
+
+               IF WS-CLI-CLAVE > WS-NOV-CLAVE                            0007910
+                 PERFORM 4000-I-LEER-NOV THRU 4000-F-LEER-NOV            0007850
+
+               ELSE                                                      0007960
+                 ADD 1 TO WS-NOVEDADES-NOTFOUND
+                 DISPLAY 'NOVEDAD NO ENCONTRADA PARA CLIENTE ACTUAL.'
+                 MOVE REG-CLIENTE-VSAM-IN TO REG-CLIENTES
+                 PERFORM 5000-I-GRABAR-SALIDA THRU 5000-F-GRABAR-SALIDA  0007980
+                 INITIALIZE WS-SUMA-SALDO
+                 PERFORM 3000-I-LEER-CLI THRU 3000-F-LEER-CLI            0008010
+
+             END-IF                                                      0008050
+
+           ELSE
+
+             PERFORM 4000-I-LEER-NOV THRU 4000-F-LEER-NOV
+
+           END-IF.
+
+       2500-F-APAREO. EXIT.
+      **************************************                            00081600
+      * LECTURA CONSULTA                   *                            00081702
+      **************************************                            00081800
+       3000-I-LEER-CLI.                                                 00081902
+                                                                        00082000
+           READ CLIENTE  INTO REG-CLIENTE-VSAM-IN.                      00082102
+                                                                        00082300
+           EVALUATE WS-CLI-CODE                                         00082402
+
+           WHEN '00'                                                    00082500
+               PERFORM 4500-I-VALIDAR THRU 4500-F-VALIDAR
+           WHEN '10'                                                    00082700
+               MOVE HIGH-VALUE TO WS-CLI-CLAVE                          00082802
+           WHEN OTHER                                                   00083000
+               DISPLAY '* ERROR EN LECTURA CLIENTE= ' WS-CLI-CODE       00083100
+               MOVE 9999 TO RETURN-CODE                                 00083200
+               SET WS-FIN-LECTURA TO TRUE                               00083300
+                                                                        00083400
+           END-EVALUATE.                                                00083500
+
+       3000-F-LEER-CLI. EXIT.                                           00083700
+                                                                        00083800
+      **************************************                            00083900
+      * LECTURA CLASE                      *                            00084002
+      **************************************                            00084100
+       4000-I-LEER-NOV.                                                 00084202
+                                                                        00084300
+           READ NOVEDAD INTO WS-REG-NOVEDAD.                            00084402
+                                                                        00084600
+           EVALUATE WS-NOV-CODE                                         00084700
+
+           WHEN '00'                                                    00084800
+               ADD 1 TO WS-NOVEDADES-LEIDAS
+
+           WHEN '10'                                                    00085200
+               MOVE HIGH-VALUE TO WS-NOV-CLAVE                          00085300
+
+           WHEN OTHER                                                   00085500
+              DISPLAY '* ERROR EN LECTURA NOVEDADES= ' WS-NOV-CODE      00085600
+              MOVE 9999 TO RETURN-CODE                                  00085700
+              SET WS-FIN-LECTURA TO TRUE                                00085800
+                                                                        00085900
+           END-EVALUATE.                                                00086000
+
+
+       4000-F-LEER-NOV. EXIT.                                           00086202
+      **************************************                            00090700
+      *            VALIDACION              *
+      **************************************
+       4500-I-VALIDAR.
+
+           IF WS-TIP-DOC IS NOT NUMERIC
+
+             IF WS-NRO-DOC IS NUMERIC
+
+               IF WS-SUC IS NUMERIC
+
+                 IF WS-CLI-TIPO IS NUMERIC
+
+                   IF WS-CLI-NRO IS NUMERIC
+
+                     IF WS-CLI-SALDO IS NUMERIC
+                       SET WS-SI TO TRUE
+
+                     ELSE
+                       DISPLAY 'EL SALDO ES ERRONEO'
+                       SET WS-NO TO TRUE
+
+                     END-IF
+
+                   ELSE
+                     DISPLAY 'EL NRO DE CLIENTE ES ERRONEO'
+                     SET WS-NO TO TRUE
+
+                   END-IF
+
+                 ELSE
+                   DISPLAY 'EL TIPO DE CLIENTE ES ERRONEO'
+                   SET WS-NO TO TRUE
+
+                 END-IF
+
+               ELSE
+                 DISPLAY 'LA SUCURSAL ES ERRONEA'
+                 SET WS-NO TO TRUE
+
+               END-IF
+
+             ELSE
+               DISPLAY 'EL NRO DE DOCUMENTO ES ERRONEO'
+               SET WS-NO TO TRUE
+
+             END-IF
+
+           ELSE
+             DISPLAY 'EL TIPO DE DOCUMENTO ES ERRONEO'
+             SET WS-NO TO TRUE
+
+           END-IF.
+
+           IF WS-NO THEN
+
+             ADD 1 TO WS-NOVEDADES-ERRONEAS
+             DISPLAY 'TIPO DE DOCUMENTO ERRONEO: ' WS-TIP-DOC
+             DISPLAY 'NRO DE DOCUMENTO ERRONEO: '  WS-NRO-DOC
+
+           END-IF.
+
+       4500-F-VALIDAR. EXIT.
+      **************************************                            00090700
+      *         GRABAR SALIDA              *
+      **************************************
+       5000-I-GRABAR-SALIDA.
+
+           PERFORM 6000-I-FECHA  THRU 6000-F-FECHA.
+
+           MOVE WS-SUMA-SALDO TO CLIS-IMPORTE.
+
+           WRITE REG-CLIENTE  FROM REG-CLIENTES
+
+           IF WS-SAL-CODE IS NOT EQUAL '00'                             00071100
+              DISPLAY '* ERROR EN SALIDA = ' WS-SAL-CODE                00071200
+              MOVE 9999 TO RETURN-CODE                                  00071300
+              SET  WS-FIN-LECTURA TO TRUE                               00071400
+           ELSE
+              ADD 1 TO WS-GRABADOS
+           END-IF.                                                      00071500
+
+       5000-F-GRABAR-SALIDA. EXIT.
+      **************************************                            00090700
+      *         CALCULAR FECHA             *
+      **************************************
+       6000-I-FECHA.
+
+           MOVE WS-FECHA TO CLIS-AAAAMMDD.
+
+       6000-F-FECHA. EXIT.
+      **************************************
+      *  CUERPO FINAL CIERRE DE FILES      *                            00090900
+      **************************************                            00091100
+       9999-FINAL.                                                      00091200
+                                                                        00092100
+           CLOSE NOVEDAD                                                00092200
+              IF WS-NOV-CODE IS NOT EQUAL '00'                          00092300
+                DISPLAY '* ERROR EN CLOSE NOVEDAD= ' WS-NOV-CODE        00092400
+                MOVE 9999 TO RETURN-CODE                                00092600
+                SET WS-FIN-LECTURA TO TRUE                              00092700
+              END-IF.                                                   00092800
+                                                                        00092900
+           CLOSE CLIENTE                                                00091400
+              IF WS-CLI-CODE IS NOT EQUAL '00'                          00091500
+                DISPLAY '* ERROR EN CLOSE CLIENTE =  ' WS-CLI-CODE      00091600
+                MOVE 9999 TO RETURN-CODE                                00091800
+                SET WS-FIN-LECTURA TO TRUE                              00091900
+              END-IF.                                                   00092000
+
+           CLOSE SALIDA.                                                00093000
+              IF WS-SAL-CODE IS NOT EQUAL '00'                          00093100
+                DISPLAY '* ERROR EN CLOSE SALIDA  = ' WS-SAL-CODE       00093200
+                MOVE 9999 TO RETURN-CODE                                00093400
+                SET WS-FIN-LECTURA TO TRUE                              00093500
+              END-IF.                                                   00093600
+
+           DISPLAY 'NOVEDADES LEIDAS: '          WS-NOVEDADES-LEIDAS.
+           DISPLAY 'NOVEDADES ERRONEAS: '        WS-NOVEDADES-ERRONEAS.
+           DISPLAY 'NOVEDADES NO ENCONTRADAS : ' WS-NOVEDADES-NOTFOUND.
+           DISPLAY 'CLIENTES GRABADOS: '         WS-GRABADOS.
+       F-9999-FINAL.                                                    00095000
+           EXIT.                                                        00100000

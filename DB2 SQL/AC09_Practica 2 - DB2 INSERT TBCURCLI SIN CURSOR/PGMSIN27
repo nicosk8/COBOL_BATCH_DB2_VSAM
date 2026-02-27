@@ -1,0 +1,218 @@
+      **********************************************************        00012000
+      *                                                        *        00013000
+      *  PARA VER DEFINICION ARCHIVO VSAM KSDS                 *        00014000
+      *  ACCESO SECUENCIAL                                     *        00014100
+      *                                                        *        00014400
+      **********************************************************        00014500
+      *      MANTENIMIENTO DE PROGRAMA                         *        00014600
+      **********************************************************        00014700
+      *  FECHA   *    DETALLE        * COD *                            00014800
+      **************************************                            00014900
+      *          *                   *     *                            00015000
+      *          *                   *     *                            00016000
+      **************************************                            00017000
+       IDENTIFICATION DIVISION.                                         00010000
+       PROGRAM-ID PGMSIN27.                                             00011005
+       ENVIRONMENT DIVISION.                                            00020000
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+       INPUT-OUTPUT SECTION.                                            00020200
+       FILE-CONTROL.                                                    00020300
+
+             SELECT CLIENTE  ASSIGN DDCLIE                              00020402
+                    ORGANIZATION IS INDEXED
+                    ACCESS MODE IS SEQUENTIAL
+                    RECORD KEY IS CLI-KEY
+                    FILE STATUS IS WS-CLI-CODE.                         00020508
+                                                                        00020600
+                                                                        00023000
+       DATA DIVISION.                                                   00039000
+       FILE SECTION.                                                    00039100
+
+       FD CLIENTE.                                                      00039202
+
+       01 REG-CLI-IN.
+          03 CLI-KEY        PIC X(17).
+          03 FILLER         PIC X(227).
+                                                                        00040300
+      **************************************                            00041000
+       WORKING-STORAGE SECTION.                                         00041100
+      **************************************                            00041200
+       77  FILLER        PIC X(26) VALUE '* INICIO WORKING-STORAGE *'.  00041300
+       77  FILLER        PIC X(26) VALUE '* CODIGOS RETORNO FILES  *'.  00041400
+      **************************************                            00042010
+      *       VARIABLES DE CONTROL        *                             00042110
+      **************************************                            00042210
+       77 WS-CLI-CODE       PIC XX    VALUE ZEROS.
+
+       01 WS-STATUS-FIN     PIC X.
+          88 WS-FIN-LECTURA         VALUE 'Y'.
+          88 WS-NO-FIN-LECTURA      VALUE 'N'.
+
+       01 WS-SQL-RETURNS.
+          03 WS-SQL-NOTFOUND  PIC S9(9) COMP VALUE +100.
+          03 WS-SQL-EDIT      PIC ++++++9999 VALUE ZEROS.
+
+      ****************************************                          00043700
+      *  VARIABLE AUXILIAR DE FECHA PARA DB2 *                          00043810
+      ****************************************                          00043900
+       01 WK-FECNAC-DB2-AUX.
+          03 FILLER           PIC 9(02) VALUE 20.
+          03 WK-FECNAC-AA     PIC 9(02) VALUE ZEROS.
+          03 FILLER           PIC X(01) VALUE '-'.
+          03 WK-FECNAC-MM     PIC 9(02) VALUE ZEROS.
+          03 FILLER           PIC X(01) VALUE '-'.
+          03 WK-FECNAC-DD     PIC 9(02) VALUE ZEROS.
+
+      ****************************************                          00043700
+      *   COPY DEL ARCHIVO DE VSAM CLIENTE   *                          00043810
+      ****************************************                          00043900
+            COPY TBVCLIEN.
+
+      ****************************************                          00043700
+      *    AREA DE COMUNICACION DB2 SQLCA    *                          00043810
+      ****************************************                          00043900
+            EXEC SQL INCLUDE SQLCA END-EXEC.
+
+      ****************************************                          00043700
+      *    DCLGEN  LAYOUT TABLA TBCURCLI     *                          00043810
+      ****************************************                          00043900
+            EXEC SQL INCLUDE TBCURCLI END-EXEC.
+
+      ****************************************                          00050900
+      *          CONTADORES                  *
+      ****************************************
+       01 WS-CONTADORES.
+          03 WS-NOVEDADES-LEIDAS     PIC 9(03)  VALUE ZEROS.
+          03 WS-NOVEDADES-INSERT     PIC 9(03)  VALUE ZEROS.
+          03 WS-NOVEDADES-DUPLICADOS PIC 9(03) VALUE ZEROS.
+
+       77 FILLER        PIC X(26) VALUE '* FINAL  WORKING-STORAGE *'.   00050800
+      ***************************************************************.  00051000
+       PROCEDURE DIVISION.                                              00051100
+      **************************************                            00052000
+      *  CUERPO PRINCIPAL DEL PROGRAMA     *                            00054000
+      *                                    *                            00056000
+      **************************************                            00057000
+       MAIN-PROGRAM.                                                    00060000
+                                                                        00060100
+           PERFORM 1000-INICIO  THRU   F-1000-INICIO.                   00060200
+                                                                        00060300
+           PERFORM 2000-PROCESO  THRU  F-2000-PROCESO                   00060400
+                   UNTIL WS-FIN-LECTURA.                                00060700
+                                                                        00060800
+           PERFORM 9999-FINAL    THRU  F-9999-FINAL.                    00061200
+                                                                        00061300
+       F-MAIN-PROGRAM. GOBACK.                                          00061400
+                                                                        00061500
+      **************************************                            00061600
+      *                                    *                            00061700
+      *  CUERPO INICIO APERTURA ARCHIVOS   *                            00061800
+      *                                    *                            00061900
+      **************************************                            00062000
+       1000-INICIO.                                                     00062100
+
+           SET WS-NO-FIN-LECTURA TO TRUE.                               00070200
+
+           OPEN INPUT  CLIENTE.                                         00071000
+
+           IF WS-CLI-CODE IS NOT EQUAL '00'                             00071100
+              DISPLAY '* ERROR EN OPEN CLIENTE = ' WS-CLI-CODE          00071200
+              MOVE 9999 TO RETURN-CODE                                  00071300
+              SET  WS-FIN-LECTURA TO TRUE                               00071400
+           ELSE
+              PERFORM 3000-I-LEER-CLI   THRU 3000-F-LEER-CLI
+           END-IF.                                                      00071500
+                                                                        00075600
+       F-1000-INICIO.   EXIT.                                           00076800
+                                                                        00076900
+      **************************************                            00077000
+      *  CUERPO PRINCIPAL DE PROCESOS      *                            00077200
+      **************************************                            00077600
+       2000-PROCESO.                                                    00077700
+
+           MOVE WK-CLI-TIPO-DOCUMENTO        TO WT-TIPDOC
+           MOVE WK-CLI-NRO-DOCUMENTO         TO WT-NRODOC
+           MOVE WK-CLI-NRO-CLIENTE           TO WT-NROCLI
+           MOVE WK-CLI-NOMBRE-CLIENTE(1:15)  TO WT-NOMAPE(1:15)
+           MOVE WK-CLI-NOMBRE-CLIENTE(1:15)  TO WT-NOMAPE(16:15)
+           MOVE WK-CLI-SEXO(1:1)             TO WT-SEXO
+
+           MOVE WK-CLI-FECHA-NACIMIENTO(7:2)      TO WK-FECNAC-AA
+           MOVE WK-CLI-FECHA-NACIMIENTO(4:2)      TO WK-FECNAC-MM
+           MOVE WK-CLI-FECHA-NACIMIENTO(1:2)      TO WK-FECNAC-DD
+           MOVE WK-FECNAC-DB2-AUX                 TO WT-FECNAC
+
+             EXEC SQL INSERT
+                      INTO KC02803.TBCURCLI
+                 (TIPDOC, NRODOC, NROCLI, NOMAPE, FECNAC, SEXO)
+
+                   VALUES (:WT-TIPDOC,
+                           :WT-NRODOC,
+                           :WT-NROCLI,
+                           :WT-NOMAPE,
+                           :WT-FECNAC,
+                           :WT-SEXO)
+             END-EXEC.
+
+           IF SQLCODE = -803
+                MOVE SQLCODE TO WS-SQL-EDIT
+                DISPLAY 'REGISTRO DUPLICADO: ' WS-SQL-EDIT
+                ADD 1  TO WS-NOVEDADES-DUPLICADOS
+           ELSE
+                IF SQLCODE = 0
+                   DISPLAY 'INSERT OK ' WT-TIPDOC, WT-NRODOC
+                   ADD 1  TO WS-NOVEDADES-INSERT
+                ELSE
+                   MOVE SQLCODE TO WS-SQL-EDIT
+                   DISPLAY 'ERROR DB2: ' WS-SQL-EDIT
+                   EXEC SQL ROLLBACK END-EXEC
+                   SET WS-FIN-LECTURA TO TRUE
+                END-IF
+           END-IF
+
+           PERFORM 3000-I-LEER-CLI   THRU 3000-F-LEER-CLI.
+
+       F-2000-PROCESO. EXIT.
+      **************************************                            00081600
+      * LECTURA CONSULTA                   *                            00081702
+      **************************************                            00081800
+       3000-I-LEER-CLI.                                                 00081902
+                                                                        00082000
+           READ CLIENTE  INTO WK-TBCLIE.                                00082102
+                                                                        00082300
+           EVALUATE WS-CLI-CODE                                         00082402
+
+           WHEN '00'                                                    00082500
+               ADD 1 TO WS-NOVEDADES-LEIDAS
+
+           WHEN '10'                                                    00082700
+               SET WS-FIN-LECTURA TO TRUE                               00082802
+
+           WHEN OTHER                                                   00083000
+               DISPLAY '* ERROR EN LECTURA CLIENTE= ' WS-CLI-CODE       00083100
+               MOVE 9999 TO RETURN-CODE                                 00083200
+               SET WS-FIN-LECTURA TO TRUE                               00083300
+                                                                        00083400
+           END-EVALUATE.                                                00083500
+
+       3000-F-LEER-CLI. EXIT.                                           00083700
+                                                                        00083800
+      **************************************
+      *  CUERPO FINAL CIERRE DE FILES      *                            00090900
+      **************************************                            00091100
+       9999-FINAL.                                                      00091200
+                                                                        00092100
+           CLOSE CLIENTE                                                00091400
+              IF WS-CLI-CODE IS NOT EQUAL '00'                          00091500
+                DISPLAY '* ERROR EN CLOSE CLIENTE =  ' WS-CLI-CODE      00091600
+                MOVE 9999 TO RETURN-CODE                                00091800
+                SET WS-FIN-LECTURA TO TRUE                              00091900
+              END-IF.                                                   00092000
+
+           DISPLAY 'NOVEDADES LEIDAS    : ' WS-NOVEDADES-LEIDAS.
+           DISPLAY 'NOVEDADES DUPLICADAS: ' WS-NOVEDADES-DUPLICADOS.
+           DISPLAY 'NOVEDADES INSERTADAS: ' WS-NOVEDADES-INSERT.
+       F-9999-FINAL.                                                    00095000
+           EXIT.                                                        00100000

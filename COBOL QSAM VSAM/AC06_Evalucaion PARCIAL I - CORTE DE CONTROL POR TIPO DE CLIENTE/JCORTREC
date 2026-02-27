@@ -1,0 +1,37 @@
+//KC03C52J JOB CLASS=A,MSGCLASS=O,MSGLEVEL=(1,1),NOTIFY=&SYSUID,
+//             TIME=(,5)
+//************************************
+//* EJEMPLO EJECUCION JOB BATCH      *
+//************************************
+//*
+//STEP1    EXEC PGM=IDCAMS,COND=(8,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+     DELETE   KC03C52.CURSOS.CORTE1.VACIO
+     DELETE   KC03C52.CURSOS.CORTE1.SORT
+     SET MAXCC=0
+//*
+//*********************************
+//*     SORT POR TIPO DE CLIENTE  *
+//*********************************
+//STEP2       EXEC PGM=SORT,COND=EVEN
+//SYSOUT    DD SYSOUT=*
+//SORTIN    DD DSN=KC03C52.CURSOS.CORTE1,DISP=SHR
+//SORTOUT   DD DSN=KC03C52.CURSOS.CORTE1.SORT,DISP=(,CATLG),
+//          UNIT=SYSDA,
+//          DCB=(LRECL=126,BLKSIZE=0000,RECFM=FB),
+//          SPACE=(TRK,(1,1),RLSE)
+//SYSIN     DD *
+ SORT       FORMAT=BI,FIELDS=(72,02,A)
+//*
+//************************************
+//* EJECUCION PROGRAMA PGMREC52      *
+//************************************
+//STEP4    EXEC PGM=PGMREC52
+//STEPLIB  DD DSN=KC03C52.CURSOS.PGMLIB,DISP=SHR
+//DDCLIEN  DD DSN=KC03C52.CURSOS.CORTE1.SORT,DISP=SHR
+//SYSOUT   DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*
+//SYSIN    DD SYSOUT=*
+//*
+//

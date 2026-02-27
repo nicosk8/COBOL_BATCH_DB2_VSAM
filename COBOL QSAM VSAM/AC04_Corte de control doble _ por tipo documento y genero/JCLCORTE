@@ -1,0 +1,38 @@
+//KC03C52J JOB CLASS=A,MSGCLASS=O,MSGLEVEL=(1,1),NOTIFY=&SYSUID,
+//             TIME=(,5)
+//************************************
+//* EJEMPLO EJECUCION JOB BATCH      *
+//************************************
+//*
+//STEP1    EXEC PGM=IDCAMS,COND=(8,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+     DELETE   KC03C52.ARCHIVO.CLICOB.VACIO
+     DELETE   KC03C52.ARCHIVO.CLICOB.SORT
+     DELETE   KC03C52.ARCHIVO.JCLCORTE.SALIDA
+     SET MAXCC=0
+//*
+//*********************************
+//*     SORT POR TIPO DOCUMENTO   *
+//*********************************
+//STEP2       EXEC PGM=SORT,COND=EVEN
+//SYSOUT    DD SYSOUT=*
+//SORTIN    DD DSN=KC03C52.CURSOS.ARCHIVO.CLICOB,DISP=SHR
+//SORTOUT   DD DSN=KC03C52.ARCHIVO.CLICOB.SORT,DISP=(,CATLG),
+//          UNIT=SYSDA,
+//          DCB=(LRECL=93,BLKSIZE=0000,RECFM=FB),
+//          SPACE=(TRK,(1,1),RLSE)
+//SYSIN     DD *
+ SORT       FORMAT=BI,FIELDS=(1,2,A,54,1,A)
+//*
+//************************************
+//* EJECUCION PROGRAMA PGM2COR2      *
+//************************************
+//STEP4    EXEC PGM=PGM2COR2
+//STEPLIB  DD DSN=KC03C52.CURSOS.PGMLIB,DISP=SHR
+//DDCLIEN  DD DSN=KC03C52.ARCHIVO.CLICOB.SORT,DISP=SHR
+//SYSOUT   DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*
+//SYSIN    DD SYSOUT=*
+//*
+//

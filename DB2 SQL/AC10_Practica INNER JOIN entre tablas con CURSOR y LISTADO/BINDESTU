@@ -1,0 +1,25 @@
+//KC03C52D JOB CLASS=A,MSGCLASS=O,MSGLEVEL=(1,1),NOTIFY=&SYSUID
+//JOBLIB   DD  DSN=DSND10.SDSNLOAD,DISP=SHR
+//STEP1   EXEC PGM=IKJEFT01,DYNAMNBR=20,COND=(4,LT)
+//****************************************************
+//*                                                  *
+//* DBRMLIB  DD  DSN=KC03C52.CURSOS.DBRMLIB,DISP=SHR *
+//*                                                  *
+//* BIND PLAN ES SIEMPRE    CURSOC52   O J O  ABAJO  *
+//*     DONDE C52 = ULTIMAS LETRAS USER ID           *
+//*                                                  *
+//* BIND MEMBER TIPEAR EL NOMBRE DEL PROGRAMA        *
+//*                                                  *
+//****************************************************
+//DBRMLIB  DD  DSN=KC03C52.CURSOS.DBRMLIB,DISP=SHR
+//SYSTSPRT DD SYSOUT=*
+//SYSTSIN  DD *
+  DSN SYSTEM(DBDG)
+  RUN  PROGRAM(DSNTIAD) PLAN(DSNTIA13) -
+       LIB('DSND10.DBDG.RUNLIB.LOAD')
+  BIND PLAN(CURSOC52) MEMBER(PGMDB022) +
+      CURRENTDATA(NO) ACT(REP) ISO(CS) ENCODING(EBCDIC)
+  END
+//SYSPRINT DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*
+//SYSIN    DD *

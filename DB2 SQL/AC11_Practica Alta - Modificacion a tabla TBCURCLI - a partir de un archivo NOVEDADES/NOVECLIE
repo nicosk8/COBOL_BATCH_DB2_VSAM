@@ -1,0 +1,37 @@
+      **************************************                            00010000
+      *         LAYOUT NOVEDAD CLIENTES    *                            00020000
+      *                                    *                            00030000
+      *      ALUXXXX.CURSOS.NOVECLIE       *                            00041005
+      *      DONDE XXXX = NRO ALUMNO       *                            00041104
+      *                                    *                            00041204
+      *         LARGO 80 BYTES             *                            00042001
+      *                                    *                            00044000
+      **************************************                            00044200
+                                                                        00044300
+       01  WS-REG-NOVECLI.                                              00046400
+      **************************************                            00046502
+      * TIP-NOV = AL  ALTA CLIENTE                                      00046604
+      * TIP-NOV = CL  MODIF. NRO CLIENTE                                00046904
+      * TIP-NOV = CN  MODIF. NOMBRE DEL CLIENTE                         00047004
+      * TIP-NOV = CX  MODIF. SEXO                                       00047104
+      **************************************                            00047202
+           03  NOV-TIP-NOV         PIC X(02)    VALUE SPACES.           00047302
+      * TIP-DOC = DU; PA; PE                                            00047402
+           03  NOV-TIP-DOC         PIC X(02)    VALUE SPACES.           00047502
+      * NRO-DOC = NUMERICO                                              00047602
+           03  NOV-NRO-DOC         PIC 9(11)    VALUE ZEROS.            00047702
+      * CLI-NRO = NUMERICO                                              00047802
+           03  NOV-CLI-NRO         PIC 9(03)    VALUE ZEROS.            00047902
+      * CLI-NOMBRE NOT EQUAL SPACES -                                   00048002
+      **************************************                            00048103
+      * CONDICION PARA GENERAR EL DATO DE PRUEBA:                       00048303
+      * LAS 6 PRIMERAS LETRAS DE NOV-CLI-NOMBRE SERêN LAS 6 PRAS LETRAS 00048404
+      * DEL APELLIDO DEL PROGRAMADOR QUE ARMA LOS DATOS DE PRUEBA       00048504
+      **************************************                            00048603
+           03  NOV-CLI-NOMBRE      PIC X(30)    VALUE SPACES.           00048703
+      * CLI-FECNAC FECHA L‰GICA (AAAAMMDD)                              00048804
+           03  NOV-CLI-FENAC       PIC X(08)    VALUE SPACES.           00048903
+      * CLI-SEXO = F; M; O                                              00049003
+           03  NOV-CLI-SEXO        PIC X        VALUE SPACES.           00049103
+           03  FILLER              PIC X(23)    VALUE SPACES.           00049203
+                                                                        00050003

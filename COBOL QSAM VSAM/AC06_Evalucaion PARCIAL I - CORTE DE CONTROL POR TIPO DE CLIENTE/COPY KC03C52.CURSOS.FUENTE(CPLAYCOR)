@@ -1,0 +1,43 @@
+COPY KC03C52.CURSOS.FUENTE(CPLAYCOR)
+
+**************************************                   
+*         LAYOUT DATOS               *                   
+*     KC02788.ALU9999.CORTE1         *                   
+*     LARGO REGISTRO = 126 BYTES     *                   
+**************************************                   
+                                                         
+ 01  WS-REG-DATOS.                                       
+                                                         
+* TIPO DOCUMENTO VALIDOS: 'DU'; 'PA'; 'PE'; 'CI';'CU'    
+     03  WS-DATO-TIP-DOC     PIC XX       VALUE SPACES.  
+                                                         
+     03  WS-DATO-NRO-DOC     PIC 9(11)    VALUE ZEROS.   
+                                                         
+     03  WS-DATO-NOMAPE      PIC X(30)    VALUE SPACES.  
+                                                         
+* ESTADO CIVIL   VALIDOS: 'SOLTERO   '; 'VIUDO     '     
+*                         'DIVORCIADO'; 'CASADO    '     
+*                         'JURIDICA'                     
+     03  WS-DATO-EST-CIV     PIC X(10)    VALUE SPACES.  
+                                                         
+* SEXO           VALIDOS: 'F'; 'M'; 'O'; 'X'(PERSONA JUR)
+     03  WS-DATO-SEXO        PIC X        VALUE SPACES.  
+* NACIONALIDAD                                           
+     03  WS-DATO-NACION      PIC X(17)    VALUE SPACES.  
+
+* TIPO DE CLIENTE                                              
+*                 VALIDOS: '1A', '1B', '1C', '1D', '1E'        
+*                                                              
+*      1A= P.FISICA   - RESIDENTE EN EL PAIS                   
+*      1B= P.FISICA   - NO RESIDENTE                           
+*      1C= P.JURIDICA - EMPRESA PYME                           
+*      1D= P.JURIDICA - EMPRESA UNICORNIO                      
+*      1E= P.JURIDICA - EMPRESA MULTINACIONAL                  
+     03  WS-DATO-TIP-CL      PIC X(02)    VALUE SPACES.        
+                                                               
+*      PATRIMONIO EN $                                         
+     03  WS-DATO-PATRIM      PIC S9(13)V99 COMP-3 VALUE ZEROS. 
+                                                               
+*      IMPORTE DEUDOR EN $                                     
+     03  WS-DATO-DEUDOR      PIC S9(13)V99 COMP-3 VALUE ZEROS. 
+                                                               

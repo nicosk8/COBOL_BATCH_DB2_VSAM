@@ -1,0 +1,18 @@
+      **************************************                            00043100
+      *         LAYOUT CLIENTES            *                            00043200
+      *         LARGO REGISTRO: 30 BYTES   *                            00043300
+      **************************************                            00043400
+       01  WS-REG-CLIENTE.                                              00043500
+           03  WS-CLI-CLAVE.                                            00043600
+              05  WS-CLI-NRO          PIC 9(05)       VALUE ZEROS.      00043700
+      *    02 CUENTAS CORRIENTES                                        00043900
+      *    03 CAJA DE AHORROS                                           00044000
+      *    04 PLAZO FIJO                                                00044100
+              05  WS-CLI-TIPO         PIC 9(02)       VALUE ZEROS.      00044200
+              05  WS-CLI-CUENTA       PIC 9(08)       VALUE ZEROS.      00044300
+                                                                        00044400
+           03  WS-CLI-SALDO           PIC S9(09)V99   VALUE ZEROS.      00044500
+                                                                        00044600
+           03  FILLER                 PIC X(04)       VALUE SPACES.     00044700
+                                                                        00044800
+                                                                        00046500

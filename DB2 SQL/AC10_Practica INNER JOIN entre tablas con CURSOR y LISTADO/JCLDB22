@@ -1,0 +1,39 @@
+//KC03C52J JOB CLASS=A,MSGCLASS=O,MSGLEVEL=(1,1),NOTIFY=&SYSUID         00010000
+//JOBLIB  DD  DSN=DSND10.SDSNLOAD,DISP=SHR                              00020000
+//        DD DSN=KC03C52.CURSOS.PGMLIB,DISP=SHR                         00021000
+//***************************************************************       00022008
+//* DELETE FILE KC03C52.LISTADO.CLIENTES                        *       00023008
+//***************************************************************       00024008
+//*                                                                     00025008
+//STEP01   EXEC PGM=IDCAMS,COND=(8,LT)                                  00026008
+//SYSPRINT DD SYSOUT=*                                                  00027008
+//SYSIN    DD *                                                         00028008
+     DELETE   KC03C52.LISTADO.CLIENTES                                  00029008
+     SET MAXCC=0                                                        00029108
+//***************************************************************       00030000
+//* EJECUTAR STEP1 SOLO LA PRIMERA VEZ PARA DEFINIR SALIDA      *       00040000
+//***************************************************************       00050000
+//STEP02   EXEC PGM=IEFBR14                                             00070008
+//DD1      DD DSN=KC03C52.LISTADO.CLIENTES,UNIT=SYSDA,                  00080008
+//             DCB=(LRECL=133,BLKSIZE=0000,RECFM=FBA),                  00090008
+//             SPACE=(TRK,(1,1),RLSE),DISP=(,CATLG)                     00100008
+//***************************************************************       00120000
+//*      EJECUTAR PROGRAMA COBOL CON SQL EMBEBIDO               *       00130000
+//***************************************************************       00140000
+//STEP03   EXEC PGM=IKJEFT01,DYNAMNBR=20,COND=(4,LT)                    00160008
+//SYSTSPRT DD SYSOUT=*                                                  00170000
+//DDSALE   DD DSN=KC03C52.LISTADO.CLIENTES,DISP=OLD,                    00181005
+//          UNIT=SYSDA,                                                 00182003
+//          DCB=(LRECL=133,BLKSIZE=0000,RECFM=FBA),                     00183007
+//          SPACE=(TRK,(1,1),RLSE)                                      00184003
+//SYSOUT   DD SYSOUT=*                                                  00190000
+//SYSTSIN  DD *                                                         00200000
+  DSN SYSTEM(DBDG)                                                      00210000
+  RUN  PROGRAM(PGMDB022) PLAN(CURSOC52) +                               00220008
+      LIB('KC03C52.CURSOS.PGMLIB')                                      00230000
+  END                                                                   00240000
+//SYSPRINT DD SYSOUT=*                                                  00250000
+//SYSUDUMP DD SYSOUT=*                                                  00260000
+//SYSIN    DD *                                                         00270000
+//*                                                                     00280000
+//                                                                      00290000

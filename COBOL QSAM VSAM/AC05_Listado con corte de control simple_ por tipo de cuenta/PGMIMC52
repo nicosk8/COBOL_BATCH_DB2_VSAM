@@ -1,0 +1,473 @@
+       IDENTIFICATION DIVISION.                                         00010000
+      *                                                        *        00020000
+        PROGRAM-ID. PGMIMC52.                                           00030000
+      **********************************************************        00040000
+      *                                                        *        00050000
+      *  PROGRAMA LISTADOR                                     *        00060000
+      *                                                        *        00070000
+      **********************************************************        00080000
+      *      MANTENIMIENTO DE PROGRAMA                         *        00090000
+      **********************************************************        00100000
+      *  FECHA   *  MODIFICACIONES   * COD      *                       00110003
+      *******************************************                       00120000
+      *06/12/2025* MEJORAS           * KC03C52  *                       00130000
+      *          * RETROALIMENTACION * N HECK.  *                       00140000
+      *******************************************                       00150000
+       ENVIRONMENT DIVISION.                                            00160000
+       CONFIGURATION SECTION.                                           00170000
+       SPECIAL-NAMES.                                                   00180000
+           DECIMAL-POINT IS COMMA.                                      00190000
+                                                                        00200000
+       INPUT-OUTPUT SECTION.                                            00210000
+       FILE-CONTROL.                                                    00220000
+             SELECT FILE1   ASSIGN DDFILE1                              00230000
+                    FILE STATUS IS WS-FIL1-CODE.                        00240000
+                                                                        00250000
+                                                                        00260000
+             SELECT LISTADO   ASSIGN DDLISTA                            00270000
+                    FILE STATUS IS WS-FS-LISTADO.                       00280000
+                                                                        00290000
+       DATA DIVISION.                                                   00300000
+       FILE SECTION.                                                    00310000
+       FD FILE1                                                         00320000
+            BLOCK CONTAINS 0 RECORDS                                    00330000
+            RECORDING MODE IS F.                                        00340000
+                                                                        00350000
+       01 REG-FILE1      PIC X(50).                                     00360003
+                                                                        00370000
+                                                                        00380000
+       FD LISTADO                                                       00390000
+            BLOCK CONTAINS 0 RECORDS                                    00400000
+            RECORDING MODE IS F.                                        00410000
+                                                                        00420000
+       01 REG-SALIDA     PIC  X(132).                                   00430005
+                                                                        00440000
+      **************************************                            00450000
+       WORKING-STORAGE SECTION.                                         00460000
+      **************************************                            00470000
+       77  FILLER        PIC X(26) VALUE '* INICIO WORKING-STORAGE *'.  00480000
+       77  FILLER        PIC X(26) VALUE '* CODIGOS RETORNO FILES  *'.  00490000
+       77  WS-FIL1-CODE      PIC XX    VALUE ZEROS.                     00500000
+       77  WS-FS-LISTADO     PIC XX    VALUE ZEROS.                     00510000
+                                                                        00520000
+       01  WS-STATUS-FIN    PIC X.                                      00530000
+           88  WS-FIN-LECTURA         VALUE 'Y'.                        00540000
+           88  WS-NO-FIN-LECTURA      VALUE 'N'.                        00550000
+                                                                        00560000
+      **************************************                            00570000
+      *         LAYOUT FILE1               *                            00580000
+      *     LARGO REGISTRO = 50 BYTES      *                            00590002
+      **************************************                            00600000
+           COPY CPCLIENS.
+                                                                        00620000
+      * VARIABLE DE CORTE - TIPO DE CUENTA                              00720003
+       01  WS-CLIS-TIPO-ANT    PIC 9(02)    VALUE ZEROS.                00721003
+                                                                        00722003
+                                                                        00952103
+      * ULTIMA LINEA POR PêGINA 60                                      00970000
+       77  WS-CUENTA-LINEA         PIC 9(02)    VALUE ZEROS.            00980000
+       77  WS-CUENTA-PAGINA        PIC 9(02)    VALUE 01.               00990000
+                                                                        01000000
+       01  WS-TITULO.                                                   01010000
+           03  FILLER              PIC X        VALUE SPACES.           01020000
+           03  FILLER              PIC X(30)    VALUE                   01050008
+             'DETALLE DE CUENTAS  -  FECHA: ' .                         01060008
+           03  FILLER              PIC X        VALUE SPACES.           01070000
+           03  WS-DD               PIC Z9       VALUE ZEROS.            01080000
+           03  FILLER              PIC X        VALUE '/'.              01090000
+           03  WS-MM               PIC Z9       VALUE ZEROS.            01100000
+           03  FILLER              PIC X        VALUE '/'.              01110000
+           03  FILLER              PIC 99       VALUE 20.               01120000
+           03  WS-AA               PIC 99       VALUE ZEROS.            01130000
+           03  FILLER              PIC X(72)    VALUE SPACES.           01140010
+           03  FILLER              PIC X(15)    VALUE                   01150000
+                'NUMERO PAGINA: '.                                      01160000
+           03  WS-PAGINA           PIC Z9       VALUE ZEROS.            01170000
+           03  FILLER              PIC X(01)    VALUE SPACES.           01140010
+                                                                        01190000
+       01  WS-SUB-TITULO.                                               01191001
+           03  FILLER              PIC X      VALUE SPACES.             01193001
+           03  WS-SUB-TIP-DOC      PIC X(14)  VALUE 'TIPO DOCUMENTO'.   01194001
+           03  FILLER              PIC X(04)  VALUE SPACES.             01195002
+           03  WS-SUB-NRO-DOC      PIC X(14)  VALUE 'NRO. DOCUMENTO'.   01196001
+           03  FILLER              PIC X(04)  VALUE SPACES.             01197002
+           03  WS-SUB-SUCURSAL     PIC X(08)  VALUE 'SUCURSAL'.         01198001
+           03  FILLER              PIC X(04)  VALUE SPACES.             01199002
+           03  WS-SUB-TIP-CTA      PIC X(11)  VALUE 'TIPO CUENTA'.      01199201
+           03  FILLER              PIC X(08)  VALUE SPACES.             01199302
+           03  WS-SUB-NRO-CTA      PIC X(11)  VALUE 'NRO. CUENTA'.      01199411
+           03  FILLER              PIC X(04)  VALUE SPACES.             01199502
+           03  WS-SUB-IMPORTE      PIC X(13)  VALUE 'IMPORTE'.          01199602
+           03  FILLER              PIC X(04)  VALUE SPACES.             01199702
+           03  WS-SUB-FECHA        PIC X(10)  VALUE 'FECHA'.            01199902
+           03  FILLER              PIC X(06)  VALUE SPACES.             01200008
+           03  WS-SUB-LOCALIDAD    PIC X(09)  VALUE 'LOCALIDAD'.        01200101
+           03  FILLER              PIC X(05)  VALUE SPACES.             01200211
+      *                                                                 01200319
+       01 WS-SUB-CORTE.                                                 01200419
+           03  FILLER              PIC X     VALUE SPACES.              01200519
+           03  FILLER              PIC X(15) VALUE                      01200622
+               'TIPO DE CUENTA '.                                       01200722
+           03 WS-SUB-CTA           PIC X(02) VALUE SPACES.              01200819
+           03 FILLER               PIC X(03) VALUE ' - '.               01200922
+           03 WS-SUB-LABEL         PIC X(17) VALUE SPACES.              01200819
+           03 FILLER               PIC X(03) VALUE ' | '.               01200922
+           03 FILLER               PIC X(16) VALUE 'CANTIDAD TOTAL: '.  01201022
+           03 WS-SUB-TOTAL         PIC ZZ9   VALUE ZEROS.               01201122
+           03 FILLER               PIC X(92) VALUE SPACES.              01201222
+                                                                        01201322
+      **************************************                            01201422
+      *         LAYOUT LISTADO             *                            01201522
+      *     LARGO REGISTRO = 133 BYTES     *                            01201622
+      **************************************                            01201722
+       01  WS-REG-LISTADO.                                              01201822
+           03  FILLER             PIC X        VALUE SPACES.            01201922
+           03  WS-REG-TIP-DOC     PIC X(15)    VALUE SPACES.            01202022
+           03  FILLER             PIC X(03)    VALUE SPACES.            01202122
+           03  WS-REG-NRO-DOC     PIC 9(11)     VALUE ZEROS.            01202222
+           03  FILLER             PIC X(07)     VALUE SPACES.           01202322
+           03  WS-REG-SUC         PIC 9(02)     VALUE ZEROS.            01202422
+           03  FILLER             PIC X(10)     VALUE SPACES.           01202522
+           03  WS-REG-TIPO        PIC X(16)     VALUE ZEROS.            01202622
+           03  FILLER             PIC X(03)     VALUE SPACES.           01202722
+           03  WS-REG-NRO         PIC 9(03)     VALUE ZEROS.            01202822
+           03  FILLER             PIC X(13)     VALUE SPACES.           01202922
+           03  WS-REG-IMPORTE     PIC ZZZZ.ZZ9,99-  VALUE ZEROS.        01203022
+           03  FILLER             PIC X(04)     VALUE SPACES.           01203122
+           03  WS-REG-DDMMAAAA.                                         01203222
+               05 WS-REG-DD       PIC 9(02)     VALUE ZEROS.
+               05 FILLER          PIC X         VALUE '/'.              01203322
+               05 WS-REG-MM       PIC 9(02)     VALUE ZEROS.
+               05 FILLER          PIC X         VALUE '/'.              01203322
+               05 WS-REG-AAAA     PIC 9(04)     VALUE ZEROS.
+           03  FILLER             PIC X(02)     VALUE SPACES.           01203322
+           03  WS-REG-LOCALIDAD   PIC X(11)     VALUE SPACES.           01203422
+           03  FILLER             PIC X(12)     VALUE SPACES.           01203522
+      ********     CONTADOR DE LEIDOS Y GRABADOS  *                     01204000
+                                                                        01210000
+       01  WS-LEIDOS-FILE1      PIC 9(05)        VALUE ZEROS.           01220000
+       01  WS-IMPRESOS          PIC 9(05)        VALUE ZEROS.           01230000
+       01  WS-DESCARTADOS       PIC 9(05)        VALUE ZEROS.           01230000
+       01  WS-TOTAL-CTA         PIC 9(02)        VALUE ZEROS.           01231019
+                                                                        01240000
+      ********     MASCARAS DE EDICION CONTADORES *                     01204000
+       01 MASCARAS-PRINT.
+          03  WS-TOTAL-CTA-EDIT    PIC Z9        VALUE ZEROS.           01232019
+          03  WS-PRINT-TOT         PIC ZZZZ9     VALUE ZEROS.           01220000
+      ********     VARIABLES AUXILIARES           *                     01204000
+       01  WS-AUX-AAAAMMDD.
+           05 WS-AUX-AAAA     PIC 9(04)     VALUE ZEROS.
+           05 WS-AUX-MM       PIC 9(02)     VALUE ZEROS.
+           05 WS-AUX-DD       PIC 9(02)     VALUE ZEROS.
+                                                                        01250000
+      ********     FECHA DE PROCESO ***************                     01260000
+       01  WS-FECHA.                                                    01270000
+           03  WS-FECHA-AA      PIC 99            VALUE ZEROS.          01280000
+           03  WS-FECHA-MM      PIC 99            VALUE ZEROS.          01290000
+           03  WS-FECHA-DD      PIC 99            VALUE ZEROS.          01300000
+                                                                        01310000
+       01  FILLER        PIC X(26) VALUE '* FINAL  WORKING-STORAGE *'.  01320000
+                                                                        01330000
+      ***************************************************************.  01340000
+       PROCEDURE DIVISION.                                              01350000
+      **************************************                            01360000
+      *                                    *                            01370000
+      *  CUERPO PRINCIPAL DEL PROGRAMA     *                            01380000
+      *                                    *                            01390000
+      **************************************                            01400000
+       MAIN-PROGRAM.                                                    01410000
+                                                                        01420000
+           PERFORM 1000-INICIO  THRU   F-1000-INICIO.                   01430000
+                                                                        01440000
+           PERFORM 2000-PROCESO  THRU  F-2000-PROCESO                   01450000
+                   UNTIL WS-FIN-LECTURA.                                01460000
+                                                                        01470000
+           PERFORM 9999-FINAL    THRU  F-9999-FINAL.                    01480000
+                                                                        01490000
+       F-MAIN-PROGRAM. GOBACK.                                          01500000
+                                                                        01510000
+      **************************************                            01520000
+      *                                    *                            01530000
+      *  CUERPO INICIO APERTURA ARCHIVOS   *                            01540000
+      *                                    *                            01550000
+      **************************************                            01560000
+       1000-INICIO.                                                     01570000
+           ACCEPT WS-FECHA FROM DATE.                                   01580000
+           MOVE WS-FECHA-AA TO WS-AA.                                   01590000
+           MOVE WS-FECHA-MM TO WS-MM.                                   01600000
+           MOVE WS-FECHA-DD TO WS-DD.                                   01610000
+           MOVE 40 TO WS-CUENTA-LINEA.                                  01620022
+                                                                        01630000
+                                                                        01640000
+           SET WS-NO-FIN-LECTURA TO TRUE.                               01650000
+                                                                        01660000
+           OPEN INPUT  FILE1.                                           01670000
+           IF WS-FIL1-CODE IS NOT EQUAL '00'                            01680000
+              DISPLAY '* ERROR EN OPEN FILE1   = ' WS-FIL1-CODE         01690000
+              MOVE 9999 TO RETURN-CODE                                  01700000
+              SET  WS-FIN-LECTURA TO TRUE                               01710000
+           END-IF.                                                      01720000
+
+           OPEN OUTPUT LISTADO.                                         01740000
+           IF WS-FS-LISTADO IS NOT EQUAL '00'                           01750000
+              DISPLAY '* ERROR EN OPEN LISTADO   = ' WS-FS-LISTADO      01760000
+              MOVE 9999 TO RETURN-CODE                                  01770000
+              SET  WS-FIN-LECTURA TO TRUE                               01780000
+           END-IF.                                                      01790000
+                                                                        01800000
+            PERFORM 2900-LECTURA-INICIAL                                01810000
+               THRU F-2900-LECTURA-INICIAL.                             01810000
+                                                                        01820000
+       F-1000-INICIO.   EXIT.                                           01830000
+                                                                        01840000
+      **************************************                            01850000
+      *                                    *                            01860000
+      *  CUERPO PRINCIPAL DE PROCESOS      *                            01870000
+      *                                    *                            01880000
+      **************************************                            01890000
+       2000-PROCESO.                                                    01900000
+
+           IF CLIS-TIPO = '01' OR '02' OR '03'                          02091023
+
+                 PERFORM 2500-ARMAR-REG-SALIDA                          02091323
+                    THRU F-2500-ARMAR-REG-SALIDA                        02091423
+
+              IF CLIS-TIPO = WS-CLIS-TIPO-ANT                           02091123
+
+                 PERFORM 6000-GRABAR-SALIDA                             02091623
+                    THRU F-6000-GRABAR-SALIDA                           02091723
+                                                                        02092123
+              ELSE                                                      02093023
+                 PERFORM 2600-CORTE-TIPO-CTA                            02094024
+                    THRU F-2600-CORTE-TIPO-CTA                          02094124
+
+              END-IF                                                    02095023
+           ELSE
+              ADD 1 TO WS-DESCARTADOS
+           END-IF                                                       02095123
+                                                                        02096001
+           PERFORM 3000-LEER-FILE1  THRU F-3000-LEER-FILE1.             02120000
+                                                                        02130000
+       F-2000-PROCESO. EXIT.                                            02140000
+      *                                                                 02140114
+       2500-ARMAR-REG-SALIDA.                                           02141014
+
+           INITIALIZE  WS-REG-LISTADO.                                  02141114
+                                                                        02141214
+           EVALUATE CLIS-TIP-DOC                                        02141514
+           WHEN 'DU'
+                 MOVE  'DOCUMENTO UNICO'  TO WS-REG-TIP-DOC             02141514
+           WHEN 'PA'
+                 MOVE  'PASAPORTE ARG'    TO WS-REG-TIP-DOC             02141514
+           WHEN 'PE'
+                 MOVE  'PASAPORTE EXT'    TO WS-REG-TIP-DOC             02141514
+           END-EVALUATE
+
+           MOVE  CLIS-NRO-DOC             TO WS-REG-NRO-DOC             02141314
+
+           EVALUATE CLIS-TIPO                                           02141514
+           WHEN '01'
+                 MOVE  'CUENTA CORRIENTE' TO WS-REG-TIPO                02141514
+           WHEN '02'
+                 MOVE  'CAJA DE AHORRO'   TO WS-REG-TIPO                02141514
+           WHEN '03'
+                 MOVE  'PLAZO FIJO'       TO WS-REG-TIPO                02141514
+           END-EVALUATE
+
+           MOVE  CLIS-NRO                 TO WS-REG-NRO                 02141614
+           MOVE  CLIS-IMPORTE             TO WS-REG-IMPORTE             02141714
+
+           MOVE  CLIS-AAAAMMDD            TO WS-AUX-AAAAMMDD            02141814
+           MOVE  WS-AUX-AAAA              TO WS-REG-AAAA
+           MOVE  WS-AUX-MM                TO WS-REG-MM
+           MOVE  WS-AUX-DD                TO WS-REG-DD
+
+           MOVE  CLIS-LOCALIDAD           TO WS-REG-LOCALIDAD.          02141914
+
+       F-2500-ARMAR-REG-SALIDA. EXIT.                                   02142015
+      *                                                                 02142119
+       2600-CORTE-TIPO-CTA.                                             02143019
+      *  GUARDO LOS TOTALES ACUMULADOS.
+           EVALUATE WS-CLIS-TIPO-ANT                                    02141514
+           WHEN '01'
+                 MOVE  'CC'               TO WS-SUB-CTA                 02141514
+                 MOVE  'CUENTA CORRIENTE' TO WS-SUB-LABEL               02141514
+           WHEN '02'
+                 MOVE  'CA'               TO WS-SUB-CTA                 02141514
+                 MOVE  'CAJA DE AHORRO'   TO WS-SUB-LABEL               02141514
+           WHEN '03'
+                 MOVE  'PF'               TO WS-SUB-CTA                 02141514
+                 MOVE  'PLAZO FIJO'       TO WS-SUB-LABEL               02141514
+           END-EVALUATE
+           MOVE WS-TOTAL-CTA     TO WS-SUB-TOTAL                        02145128
+                                                                        02145528
+      *  VOY A GRABAR EL SUBTITULO DE CORTE DE CONTROL.                 02144119
+           PERFORM 2700-GRABAR-SUBTITULO-CORTE
+              THRU F-2700-GRABAR-SUBTITULO-CORTE                        02152019
+
+      * ACTUALIZO LA CLAVE ANTERIOR                                     02147128
+           MOVE CLIS-TIPO     TO WS-CLIS-TIPO-ANT                       02149028
+
+      * ACTUALIZO CONTADOR DE LINEA PARA QUE ENTRE A GRABAR ENCABEZADO
+           MOVE 42 TO WS-CUENTA-LINEA                                   02147228
+
+      * INICIALIZO EL ACUMULADOR DE TIPO DE CUENTA
+           MOVE 0 TO WS-TOTAL-CTA                                       02149428
+
+           IF WS-FIN-LECTURA                                            02149720
+              NEXT SENTENCE                                             02149819
+           ELSE                                                         02149919
+      *       SI NO ES FIN DE ARCHIVO                                   02150019
+      *       VOY A GRABAR SIG CABECERA Y REG QUE TENGO LEIDO           02150119
+      *       DE LA LECTURA CUANDO ME DIO EL CORTE                      02150119
+               PERFORM 6000-GRABAR-SALIDA                               02151519
+                  THRU F-6000-GRABAR-SALIDA                             02151619
+           END-IF.                                                      02151729
+       F-2600-CORTE-TIPO-CTA. EXIT.                                     02152019
+      *
+       2700-GRABAR-SUBTITULO-CORTE.                                     02152019
+              IF WS-IMPRESOS  GREATER 0                                 02145634
+                 WRITE REG-SALIDA FROM WS-SUB-CORTE AFTER 4             02145733
+              END-IF                                                    02146233
+                                                                        02146333
+              IF WS-FS-LISTADO IS NOT EQUAL '00'                        02146428
+                 DISPLAY '* ERROR EN WRITE LISTADO : '                  02146528
+                 DISPLAY '* GRABAR SUB TIT CORTE'                       02146628
+                 DISPLAY '* 2600-CORTE-TIPO-CTA: ' WS-FS-LISTADO        02146728
+                 MOVE 9999 TO RETURN-CODE                               02146828
+                 SET WS-FIN-LECTURA TO TRUE                             02146928
+              END-IF.                                                   02147028
+       F-2700-GRABAR-SUBTITULO-CORTE. EXIT.                             02152019
+      **************************************                            02160000
+      * LECTURA FILE1                      *                            02170000
+      **************************************                            02180000
+       2900-LECTURA-INICIAL.                                            02190000
+                                                                        02200000
+           READ FILE1   INTO REG-CLIENTES.                              02210000
+                                                                        02220000
+           EVALUATE WS-FIL1-CODE                                        02230000
+             WHEN '00'                                                  02240000
+                  ADD 1 TO WS-LEIDOS-FILE1                              02250000
+
+              WHEN '10'                                                 02260000
+                  SET WS-FIN-LECTURA TO TRUE                            02270019
+                  DISPLAY 'ARCHIVO DE ENTRADA DDFILE1 VACIO'            02271020
+                                                                        02280020
+           WHEN OTHER                                                   02300000
+              DISPLAY '* ERROR EN LECTURA FILE1   = ' WS-FIL1-CODE      02310000
+              MOVE 9999 TO RETURN-CODE                                  02320000
+              SET WS-FIN-LECTURA  TO TRUE                               02330000
+                                                                        02340000
+           END-EVALUATE.                                                02350000
+                                                                        02360000
+       F-2900-LECTURA-INICIAL. EXIT.                                    02370000
+      **************************************                            02160000
+      * LECTURA FILE1                      *                            02170000
+      **************************************                            02180000
+       3000-LEER-FILE1.                                                 02190000
+                                                                        02200000
+           READ FILE1   INTO REG-CLIENTES.                              02210000
+                                                                        02220000
+           EVALUATE WS-FIL1-CODE                                        02230000
+             WHEN '00'                                                  02240000
+                  ADD 1 TO WS-LEIDOS-FILE1                              02250000
+
+              WHEN '10'                                                 02260000
+                  SET WS-FIN-LECTURA TO TRUE                            02270019
+                  PERFORM 2600-CORTE-TIPO-CTA                           02271020
+                     THRU F-2600-CORTE-TIPO-CTA                         02272020
+                                                                        02280020
+           WHEN OTHER                                                   02300000
+              DISPLAY '* ERROR EN LECTURA FILE1   = ' WS-FIL1-CODE      02310000
+              MOVE 9999 TO RETURN-CODE                                  02320000
+              SET WS-FIN-LECTURA  TO TRUE                               02330000
+                                                                        02340000
+           END-EVALUATE.                                                02350000
+                                                                        02360000
+       F-3000-LEER-FILE1. EXIT.                                         02370000
+                                                                        02380000
+      ***************************************************               02390000
+      *PARRAFO PARA GRABAR LA SALIDA ACTUALIZADA                        02400000
+      ***************************************************               02410000
+                                                                        02420000
+       6000-GRABAR-SALIDA.                                              02430000
+                                                                        02440000
+           IF WS-CUENTA-LINEA GREATER 40                                02450003
+               PERFORM 6500-IMPRIMIR-TITULOS THRU                       02460000
+                     F-6500-IMPRIMIR-TITULOS                            02470000
+           END-IF.                                                      02480000
+                                                                        02490000
+           WRITE REG-SALIDA   FROM WS-REG-LISTADO AFTER 1.              02500000
+           IF WS-FS-LISTADO IS NOT EQUAL '00'                           02510000
+                DISPLAY '* ERROR EN WRITE LISTADO = ' WS-FS-LISTADO     02520000
+                MOVE 9999 TO RETURN-CODE                                02540000
+                SET WS-FIN-LECTURA TO TRUE                              02550000
+           END-IF.                                                      02560000
+                                                                        02570000
+           ADD 1 TO WS-TOTAL-CTA                                        02571034
+           ADD 1 TO WS-IMPRESOS                                         02580032
+           ADD 1 TO WS-CUENTA-LINEA.                                    02590000
+                                                                        02600000
+       F-6000-GRABAR-SALIDA. EXIT.                                      02610000
+                                                                        02620000
+       6500-IMPRIMIR-TITULOS.                                           02630000
+           MOVE WS-CUENTA-PAGINA     TO WS-PAGINA.                      02640026
+           MOVE 1     TO WS-CUENTA-LINEA                                02671026
+           ADD  1     TO WS-CUENTA-PAGINA.                              02672026
+                                                                        02673026
+           WRITE   REG-SALIDA    FROM WS-TITULO   AFTER PAGE.           02680000
+           WRITE   REG-SALIDA    FROM WS-SUB-TITULO.                    02681004
+                                                                        02690000
+           IF WS-FS-LISTADO IS NOT EQUAL '00'                           02700025
+                DISPLAY '* ERROR EN WRITE LISTADO = '                   02710000
+                                            WS-FS-LISTADO               02720000
+                MOVE 9999 TO RETURN-CODE                                02730000
+                SET WS-FIN-LECTURA TO TRUE                              02740000
+           END-IF                                                       02750026
+           .                                                            02750127
+                                                                        02750226
+                                                                        02760000
+       F-6500-IMPRIMIR-TITULOS. EXIT.                                   02770000
+                                                                        02780000
+      **************************************                            02790000
+      *                                    *                            02800000
+      *  CUERPO FINAL CIERRE DE FILES      *                            02810000
+      *                                    *                            02820000
+      **************************************                            02830000
+       9999-FINAL.                                                      02840000
+                                                                        02850000
+           CLOSE FILE1.                                                 02860000
+              IF WS-FIL1-CODE IS NOT EQUAL '00'                         02870000
+                DISPLAY '* ERROR EN CLOSE FILE1   = '                   02880000
+                                            WS-FIL1-CODE                02890000
+                MOVE 9999 TO RETURN-CODE                                02900000
+                SET WS-FIN-LECTURA TO TRUE                              02910000
+             END-IF.                                                    02920000
+                                                                        02930000
+           CLOSE LISTADO                                                02940000
+              IF WS-FS-LISTADO IS NOT EQUAL '00'                        02950000
+                DISPLAY '* ERROR EN CLOSE LISTADO = '                   02960000
+                                            WS-FS-LISTADO               02970000
+                MOVE 9999 TO RETURN-CODE                                02980000
+                SET WS-FIN-LECTURA TO TRUE                              02990000
+             END-IF.                                                    03000000
+                                                                        03010000
+      **************************************                            03020000
+      *   MOSTRAR TOTALES DE CONTROL                                    03030000
+      **************************************                            03040000
+                                                                        03050000
+           DISPLAY '-------------------------------------------'        03060019
+           DISPLAY '* TOTALES DE CONTROL - PGMIMC52 - KC03C52 *'.       03060119
+           DISPLAY '-------------------------------------------'        03060219
+           MOVE  WS-LEIDOS-FILE1 TO WS-PRINT-TOT.                       03061019
+           DISPLAY 'TOTAL LEIDOS: ' WS-PRINT-TOT.                       03061019
+
+           MOVE  WS-IMPRESOS     TO WS-PRINT-TOT.                       03061019
+           DISPLAY 'TOTAL IMPRESOS: ' WS-PRINT-TOT.                     03070019
+
+           MOVE  WS-DESCARTADOS  TO WS-PRINT-TOT.                       03061019
+           DISPLAY 'TOTAL DESCARTADOS: ' WS-PRINT-TOT.                  03070019
+                                                                        03080000
+       F-9999-FINAL.                                                    03090000
+           EXIT.                                                        03100000
+      *                                                                 03110000

@@ -1,0 +1,22 @@
+//KC03C52D JOB CLASS=A,MSGCLASS=O,MSGLEVEL=(1,1),NOTIFY=&SYSUID         00010001
+//JOBLIB  DD  DSN=DSND10.SDSNLOAD,DISP=SHR                              00020000
+//*                                                                     00030000
+//***************************************************************       00040000
+//*      EJECUTAR PROGRAMA COBOL CON SQL EMBEBIDO               *       00050000
+//*              SIN CURSOR                                     *       00060000
+//***************************************************************       00070000
+//*                                                                     00080000
+//STEP2    EXEC PGM=IKJEFT01,DYNAMNBR=20,COND=(4,LT)                    00090000
+//SYSTSPRT DD SYSOUT=*                                                  00100000
+//DDCLIE   DD DSN=KC03C52.NOVECLI.KSDS.VSAM,DISP=SHR                    00110003
+//SYSOUT   DD SYSOUT=*                                                  00120000
+//SYSTSIN  DD *                                                         00130000
+  DSN SYSTEM(DBDG)                                                      00140000
+  RUN  PROGRAM(PGMSIN27) PLAN(CURSOC52) +                               00150002
+      LIB('KC03C52.CURSOS.PGMLIB')                                      00160001
+  END                                                                   00170000
+//SYSPRINT DD SYSOUT=*                                                  00180000
+//SYSUDUMP DD SYSOUT=*                                                  00190000
+//SYSIN    DD *                                                         00200000
+//*                                                                     00210000
+//                                                                      00220000

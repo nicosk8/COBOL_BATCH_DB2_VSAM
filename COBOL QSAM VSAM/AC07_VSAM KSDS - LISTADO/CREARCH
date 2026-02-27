@@ -1,0 +1,11 @@
+//KC03C52J JOB CLASS=A,MSGCLASS=O,MSGLEVEL=(1,1),NOTIFY=&SYSUID         00010000
+//JOBLIB  DD  DSN=DSND10.SDSNLOAD,DISP=SHR                              00020000
+//        DD DSN=KC03C52.CURSOS.PGMLIB,DISP=SHR                         00021000
+//***************************************************************       00030000
+//* EJECUTAR STEP1 SOLO LA PRIMERA VEZ PARA DEFINIR SALIDA      *       00040000
+//***************************************************************       00050000
+//STEP1    EXEC PGM=IEFBR14                                             00070001
+//DD1      DD DSN=KC03C52.NOVECLI.NEW,UNIT=SYSDA,                       00080001
+//            DCB=(LRECL=144,BLKSIZE=0000,RECFM=FB),                    00090001
+//            SPACE=(TRK,(1,1),RLSE),DISP=(,CATLG)                      00100001
+//                                                                      00110001

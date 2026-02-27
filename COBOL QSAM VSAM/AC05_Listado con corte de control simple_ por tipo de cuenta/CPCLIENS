@@ -1,0 +1,26 @@
+      **************************************                            00010000
+      *         LAYOUT  ARCHIVO   CLIENTES *                            00020000
+      *                                    *                            00030000
+      *KC02788.ALU9999.CURSOS.CLIENTE      *                            00040000
+      *                                    *                            00041000
+      *         LARGO 50 BYTES             *                            00042000
+      *                                    *                            00044000
+      **************************************                            00044200
+                                                                        00044300
+       01  REG-CLIENTES.                                                00044400
+      *VALORES POSIBLES CLIS-TIP-DOC = DU, PA, PE                       00044500
+           03  CLIS-TIP-DOC        PIC X(02)    VALUE SPACES.           00044600
+           03  CLIS-NRO-DOC        PIC 9(11)    VALUE ZEROS.            00044900
+      *VALORES POSIBLES CLIS-SUC= 01, 02, 03,......10                   00045000
+           03  CLIS-SUC            PIC 9(02)    VALUE ZEROS.            00045100
+      *VALORES POSIBLES CLIS-TIPO= 01, 02, 03                           00045200
+      * 01: CUENTAS CORRIENTES, 02: CAJA DE AHORROS; 03: PLAZO FIJO     00045300
+           03  CLIS-TIPO           PIC 9(02)    VALUE ZEROS.            00045700
+           03  CLIS-NRO            PIC 9(03)    VALUE ZEROS.            00046100
+           03  CLIS-IMPORTE        PIC S9(09)V99 COMP-3 VALUE ZEROS.    00046200
+      *VALORES POSIBLES CLIS-AAAAMMDD DEBE SER FECHA LÏGICA             00046300
+           03  CLIS-AAAAMMDD       PIC 9(08)            VALUE ZEROS.    00046400
+      *VALOR EXTRAIDO DE PERSONAS                                       00046500
+           03  CLIS-LOCALIDAD      PIC X(15)    VALUE SPACES.           00046600
+           03  FILLER              PIC X(01)    VALUE SPACES.           00046700
+                                                                        00046800
