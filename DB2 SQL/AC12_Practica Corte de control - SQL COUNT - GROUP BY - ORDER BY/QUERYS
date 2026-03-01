@@ -1,0 +1,113 @@
+--     SELECT *                                                         00010041
+--     FROM KC02803.TBCURCTA;                                           00020041
+                                                                        00030000
+--     SELECT *                                                         00031022
+--     FROM KC02803.TBCURCLI;                                           00032022
+                                                                        00033001
+--     SELECT *                                                         00035003
+--     FROM KC02803.TBCURCLI WHERE SEXO = 'M';                          00036003
+                                                                        00036103
+--     SELECT *                                                         00036203
+--     FROM KC02803.TBCURCLI ORDER BY SEXO;                             00036303
+                                                                        00036403
+--     SELECT DISTINCT TIPCUEN, SUCUEN                                  00036504
+--     FROM KC02803.TBCURCTA;                                           00036604
+                                                                        00036704
+--     SELECT TIPCUEN, NROCUEN, SUCUEN                                  00036806
+--     FROM KC02803.TBCURCTA                                            00036906
+--     WHERE SUCUEN = 998;                                              00037006
+                                                                        00038006
+--     SELECT TIPCUEN, NROCUEN, SUCUEN, SALDO                           00039008
+--     FROM KC02803.TBCURCTA                                            00039108
+--     WHERE SALDO >= 0;                                                00039208
+                                                                        00039308
+--     SELECT NROCLI, NOMAPE                                            00039409
+--     FROM KC02803.TBCURCLI                                            00039509
+--     WHERE NROCLI <> 123;                                             00039609
+                                                                        00039709
+--     SELECT NROCLI, NOMAPE                                            00039810
+--     FROM KC02803.TBCURCLI                                            00039910
+--     WHERE NROCLI != 123;                                             00040010
+                                                                        00040110
+--     SELECT NROCLI, NOMAPE                                            00040211
+--     FROM KC02803.TBCURCLI                                            00040311
+--     WHERE NROCLI BETWEEN 10 AND 20;                                  00040411
+                                                                        00040511
+--     SELECT NROCLI, NOMAPE                                            00040612
+--     FROM KC02803.TBCURCLI                                            00040712
+--     WHERE NOMAPE LIKE '%ANGEL%';                                     00040812
+                                                                        00040912
+--     SELECT TIPCUEN, NROCUEN, SUCUEN, NROCLI                          00041013
+--     FROM KC02803.TBCURCTA                                            00041113
+--     WHERE SUCUEN IN (1,2,3);                                         00041213
+                                                                        00041313
+--     SELECT TIPDOC, NRODOC, NOMAPE, NROCLI                            00041414
+--     FROM KC02803.TBCURCLI                                            00041514
+--     WHERE TIPDOC IN ('DU','PA');                                     00041614
+                                                                        00041714
+--     SELECT TIPCUEN, NROCUEN, SUCUEN, NROCLI, SALDO                   00041815
+--     FROM KC02803.TBCURCTA                                            00041915
+--     WHERE (TIPCUEN = 1 AND SUCUEN = 3)                               00042015
+--     OR (TIPCUEN = 2 AND NOT SUCUEN = 1);                             00043015
+                                                                        00044015
+--     SELECT TIPCUEN, NROCUEN, SUCUEN, NROCLI, SALDO                   00045016
+--     FROM KC02803.TBCURCTA                                            00046016
+--     ORDER BY SUCUEN ASC, SALDO DESC;                                 00046116
+                                                                        00046216
+--     SELECT TIPCUEN, NROCUEN, SUCUEN, NROCLI                          00046319
+--     FROM KC02803.TBCURCTA                                            00046419
+--     WHERE NROCLI = 23;                                               00046519
+                                                                        00046619
+--     SELECT *                                                         00046720
+--     FROM KC02803.TBCURCLI;                                           00046820
+                                                                        00046919
+--     SELECT A.TIPCUEN,                                                00047021
+--            A.NROCUEN,                                                00048021
+--            A.SUCUEN,                                                 00049021
+--            A.NROCLI,                                                 00049121
+--            B.NOMAPE,                                                 00049221
+--            A.SALDO,                                                  00049321
+--            A.FECSAL                                                  00049421
+--        FROM  KC02803.TBCURCTA A                                      00049521
+--             INNER JOIN                                               00049621
+--               KC02803.TBCURCLI B                                     00049721
+--            ON  A.NROCLI = B.NROCLI                                   00049821
+--            WHERE A.SALDO > 0                                         00049921
+--           ;                                                          00050021
+                                                                        00051000
+--     SELECT *                                                         00052024
+--     FROM KC02803.TBCURCLI                                            00053024
+--     WHERE TIPDOC IN ('DU','PA','PE')                                 00060024
+--     AND   NRODOC IN (95200000951,95200000952,95200000953)            00070024
+--     AND   NROCLI IN (951,952,953)                                    00080024
+--     AND   NOMAPE LIKE '%HECKNI';                                     00090024
+                                                                        00091024
+--     SELECT TIPDOC AS TIPO_DOCUMENTO,                                 00092032
+--            NRODOC AS NRO_DOCUMENTO,                                  00092132
+--            NROCLI AS NRO_CLIENTE,                                    00092232
+--            NOMAPE AS NOMBRE_APELLIDO                                 00092332
+--     FROM KC02803.TBCURCLI                                            00093032
+--     WHERE NROCLI IN (951,952,953);                                   00094032
+                                                                        00100000
+--     SELECT TIPCUEN AS TIPO_CUENTA,                                   00111036
+--            NROCUEN AS NUMERO_CUENTA,                                 00111136
+--            SUCUEN  AS SUCURSAL_CUENTA,                               00111236
+--            NROCLI  AS NUMERO_CLIENTE,                                00111336
+--            SALDO   AS SALDO,                                         00111436
+--            FECSAL  AS FECHA                                          00111536
+--     FROM KC02803.TBCURCTA                                            00112036
+--     ORDER BY TIPCUEN ASC, NROCUEN ASC;                               00113036
+                                                                        00121041
+       SELECT TIPCUEN AS TIPO_CUENTA,                                   00122041
+              NROCUEN AS NUMERO_CUENTA,                                 00123041
+              SUCUEN  AS SUCURSAL_CUENTA,                               00124041
+              NROCLI  AS NUMERO_CLIENTE,                                00125041
+              SALDO   AS SALDO,                                         00126041
+              FECSAL  AS FECHA                                          00127041
+       FROM KC02803.TBCURCTA                                            00128041
+       ORDER BY SUCUEN;                                                 00129041
+                                                                        00129141
+--     SELECT SUCUEN AS SUCURSAL, COUNT(*) AS CANTIDAD_CUENTAS          00130039
+--       FROM KC02803.TBCURCTA                                          00140039
+--      GROUP BY SUCUEN                                                 00150039
+--      ORDER BY SUCUEN;                                                00160039
