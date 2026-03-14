@@ -1,0 +1,260 @@
+--   CURSOR C4 VALIDAR CUENTAS  - DATOS                                 00001066
+--     SELECT *                                                         00010067
+--     FROM KC02803.TBCURCTA                                            00020067
+--     ORDER BY NROCLI;                                                 00030067
+                                                                        00030266
+--     SELECT *                                                         00031069
+--     FROM KC02803.TBCURCLI                                            00032069
+--     ORDER BY NROCLI;                                                 00032169
+                                                                        00033001
+--     SELECT *                                                         00035003
+--     FROM KC02803.TBCURCLI WHERE SEXO = 'M';                          00036003
+                                                                        00036103
+--     SELECT *                                                         00036203
+--     FROM KC02803.TBCURCLI ORDER BY SEXO;                             00036303
+                                                                        00036403
+--     SELECT DISTINCT TIPCUEN, SUCUEN                                  00036504
+--     FROM KC02803.TBCURCTA;                                           00036604
+                                                                        00036704
+--     SELECT TIPCUEN, NROCUEN, SUCUEN                                  00036806
+--     FROM KC02803.TBCURCTA                                            00036906
+--     WHERE SUCUEN = 998;                                              00037006
+                                                                        00038006
+--     SELECT TIPCUEN, NROCUEN, SUCUEN, SALDO                           00039008
+--     FROM KC02803.TBCURCTA                                            00039108
+--     WHERE SALDO >= 0;                                                00039208
+                                                                        00039308
+--     SELECT NROCLI, NOMAPE                                            00039409
+--     FROM KC02803.TBCURCLI                                            00039509
+--     WHERE NROCLI <> 123;                                             00039609
+                                                                        00039709
+--     SELECT NROCLI, NOMAPE                                            00039810
+--     FROM KC02803.TBCURCLI                                            00039910
+--     WHERE NROCLI != 123;                                             00040010
+                                                                        00040110
+--     SELECT NROCLI, NOMAPE                                            00040211
+--     FROM KC02803.TBCURCLI                                            00040311
+--     WHERE NROCLI BETWEEN 10 AND 20;                                  00040411
+                                                                        00040511
+--     SELECT NROCLI, NOMAPE                                            00040612
+--     FROM KC02803.TBCURCLI                                            00040712
+--     WHERE NOMAPE LIKE '%ANGEL%';                                     00040812
+                                                                        00040912
+--     SELECT TIPCUEN, NROCUEN, SUCUEN, NROCLI                          00041013
+--     FROM KC02803.TBCURCTA                                            00041113
+--     WHERE SUCUEN IN (1,2,3);                                         00041213
+                                                                        00041313
+--     SELECT TIPDOC, NRODOC, NOMAPE, NROCLI                            00041414
+--     FROM KC02803.TBCURCLI                                            00041514
+--     WHERE TIPDOC IN ('DU','PA');                                     00041614
+                                                                        00041714
+--     SELECT TIPCUEN, NROCUEN, SUCUEN, NROCLI, SALDO                   00041815
+--     FROM KC02803.TBCURCTA                                            00041915
+--     WHERE (TIPCUEN = 1 AND SUCUEN = 3)                               00042015
+--     OR (TIPCUEN = 2 AND NOT SUCUEN = 1);                             00043015
+                                                                        00044015
+--     SELECT TIPCUEN, NROCUEN, SUCUEN, NROCLI, SALDO                   00045016
+--     FROM KC02803.TBCURCTA                                            00046016
+--     ORDER BY SUCUEN ASC, SALDO DESC;                                 00046116
+                                                                        00046216
+--     SELECT TIPCUEN, NROCUEN, SUCUEN, NROCLI                          00046319
+--     FROM KC02803.TBCURCTA                                            00046419
+--     WHERE NROCLI = 23;                                               00046519
+                                                                        00046619
+--     SELECT *                                                         00046720
+--     FROM KC02803.TBCURCLI;                                           00046820
+                                                                        00046919
+--     SELECT A.TIPCUEN,                                                00047021
+--            A.NROCUEN,                                                00048021
+--            A.SUCUEN,                                                 00049021
+--            A.NROCLI,                                                 00049121
+--            B.NOMAPE,                                                 00049221
+--            A.SALDO,                                                  00049321
+--            A.FECSAL                                                  00049421
+--        FROM  KC02803.TBCURCTA A                                      00049521
+--             INNER JOIN                                               00049621
+--               KC02803.TBCURCLI B                                     00049721
+--            ON  A.NROCLI = B.NROCLI                                   00049821
+--            WHERE A.SALDO > 0                                         00049921
+--           ;                                                          00050021
+                                                                        00051000
+--     SELECT *                                                         00052024
+--     FROM KC02803.TBCURCLI                                            00053024
+--     WHERE TIPDOC IN ('DU','PA','PE')                                 00060024
+--     AND   NRODOC IN (95200000951,95200000952,95200000953)            00070024
+--     AND   NROCLI IN (951,952,953)                                    00080024
+--     AND   NOMAPE LIKE '%HECKNI';                                     00090024
+                                                                        00091024
+--     SELECT TIPDOC AS TIPO_DOCUMENTO,                                 00092032
+--            NRODOC AS NRO_DOCUMENTO,                                  00092132
+--            NROCLI AS NRO_CLIENTE,                                    00092232
+--            NOMAPE AS NOMBRE_APELLIDO                                 00092332
+--     FROM KC02803.TBCURCLI                                            00093032
+--     WHERE NROCLI IN (951,952,953);                                   00094032
+                                                                        00100000
+--     SELECT TIPCUEN AS TIPO_CUENTA,                                   00111036
+--            NROCUEN AS NUMERO_CUENTA,                                 00111136
+--            SUCUEN  AS SUCURSAL_CUENTA,                               00111236
+--            NROCLI  AS NUMERO_CLIENTE,                                00111336
+--            SALDO   AS SALDO,                                         00111436
+--            FECSAL  AS FECHA                                          00111536
+--     FROM KC02803.TBCURCTA                                            00112036
+--     ORDER BY TIPCUEN ASC, NROCUEN ASC;                               00113036
+                                                                        00121041
+--     SELECT TIPDOC  AS TIPO_DOCUMENTO,                                00122052
+--            NRODOC  AS NUMERO_DOCUMENTO,                              00123052
+--            NROCLI  AS NUMERO_CLIENTE,                                00123152
+--            NOMAPE  AS NOMBRE_APELLIDO,                               00124052
+--            FECNAC  AS FECHA_NACIMIENTO,                              00126052
+--            SEXO    AS SEXO                                           00127052
+--     FROM KC02803.TBCURCLI                                            00128052
+--     ORDER BY NROCLI ASC;                                             00129052
+                                                                        00129141
+--     SELECT SUCUEN AS SUCURSAL, COUNT(*) AS CANTIDAD_CUENTAS          00130039
+--       FROM KC02803.TBCURCTA                                          00140039
+--      GROUP BY SUCUEN                                                 00150039
+--      ORDER BY SUCUEN;                                                00160039
+                                                                        00161042
+--    INNER JOIN                                                        00170043
+--           SELECT A.TIPCUEN,                                          00180046
+--                  A.NROCUEN,                                          00190046
+--                  A.SUCUEN,                                           00200046
+--                  A.NROCLI,                                           00210046
+--                  B.NOMAPE,                                           00220046
+--                  A.SALDO,                                            00230046
+--                  A.FECSAL                                            00240046
+--              FROM  KC02803.TBCURCTA A                                00250046
+--                   INNER JOIN                                         00260046
+--                     KC02803.TBCURCLI B                               00270046
+--                  ON  A.NROCLI = B.NROCLI                             00280046
+--                  WHERE A.SALDO > 0                                   00290046
+--              ORDER BY SUCUEN ASC                                     00291046
+--           ;                                                          00300046
+                                                                        00301052
+--     SELECT TIPCUEN AS TIPO_CUENTA,                                   00310053
+--            NROCUEN AS NUMERO_CUENTA,                                 00320053
+--            SUCUEN  AS SUCURSAL_CUENTA,                               00330053
+--            COUNT(*)                                                  00340053
+--     FROM   KC02803.TBCURCTA                                          00370053
+--     GROUP BY TIPCUEN,SUCUEN,NROCUEN                                  00380053
+--     HAVING COUNT(*) > 1;                                             00390053
+                                                                        00400053
+--     SELECT TIPDOC  AS TIPO_DOCUMENTO,                                00410058
+--            NRODOC  AS NRO_DOCUMENTO,                                 00420058
+--            NROCLI  AS NRO_CLIENTE,                                   00430058
+--            NOMAPE  AS NOMBRE_Y_APELLIDO,                             00431058
+--            FECNAC  AS FECHA_NACIMIENTO,                              00432058
+--            SEXO    AS SEXO                                           00433058
+--     FROM   KC02803.TBCURCLI                                          00450058
+--     WHERE NROCLI IN                                                  00451058
+--           (SELECT NROCLI                                             00452058
+--              FROM KC02803.TBCURCLI                                   00453058
+--            GROUP BY NROCLI                                           00460058
+--            HAVING COUNT(*) > 1)                                      00470058
+--            ORDER BY NROCLI;                                          00480058
+                                                                        00481058
+-- * SELECCIONAR CLIENTES SIN CUENTAS  *                                00482062
+--     SELECT A.TIPDOC,                                                 00490060
+--            A.NRODOC,                                                 00500060
+--            A.NROCLI,                                                 00510060
+--            A.NOMAPE,                                                 00511060
+--            A.FECNAC,                                                 00512060
+--            A.SEXO                                                    00513060
+--     FROM KC02803.TBCURCLI A                                          00520060
+--     WHERE NOT EXISTS                                                 00530060
+--           (SELECT 1                                                  00540060
+--              FROM KC02803.TBCURCTA B                                 00550060
+--              WHERE B.NROCLI = A.NROCLI)                              00560060
+--              ORDER BY NROCLI;                                        00570060
+                                                                        00571061
+--     SELECT A.TIPDOC,                                                 00572062
+--            A.NRODOC,                                                 00573062
+--            A.NROCLI,                                                 00574062
+--            A.NOMAPE,                                                 00575062
+--            A.FECNAC,                                                 00576062
+--            A.SEXO                                                    00577062
+--     FROM KC02803.TBCURCLI A                                          00578062
+--     LEFT JOIN KC02803.TBCURCTA B                                     00610062
+--            ON A.NROCLI = B.NROCLI                                    00620062
+--     WHERE B.NROCLI IS NULL                                           00630062
+--     ORDER BY NROCLI ASC;                                             00660062
+--                                                                      00670062
+-- * SELECCIONAR CUENTAS SIN CLIENTE   *                                00670162
+--            SELECT A.TIPCUEN,                                         00671063
+--                   A.NROCUEN,                                         00672063
+--                   A.SUCUEN,                                          00673063
+--                   A.NROCLI,                                          00674063
+--                   A.SALDO,                                           00675063
+--                   A.FECSAL                                           00676063
+--            FROM KC02803.TBCURCTA A                                   00677063
+--            WHERE NOT EXISTS                                          00678063
+--                  (SELECT 1                                           00679063
+--                     FROM KC02803.TBCURCLI B                          00679163
+--                     WHERE B.NROCLI = A.NROCLI)                       00679263
+--                     ORDER BY NROCLI;                                 00679363
+--                                                                      00679463
+--   CURSOR C1 VALIDAR CLIENTES - DATOS                                 00679565
+--            SELECT *                                                  00679966
+--            FROM KC02803.TBCURCLI                                     00680066
+--            ORDER BY NROCLI ASC;                                      00680166
+--                                                                      00680266
+                                                                        00680365
+--                                                                      00690064
+--   CURSOR C2 - CLIENTES DUPLICADOS                                    00691073
+--            SELECT *                                                  00700074
+--            FROM   KC02803.TBCURCLI                                   00710074
+--            WHERE NROCLI IN                                           00720074
+--                  (SELECT NROCLI                                      00730074
+--                     FROM KC02803.TBCURCLI                            00740074
+--                   GROUP BY NROCLI                                    00750074
+--                   HAVING COUNT(*) > 1)                               00760074
+--                   ORDER BY NROCLI;                                   00770074
+                                                                        00772074
+--   CURSOR C3 - CLIENTES SIN CUENTAS                                   00772174
+--            SELECT A.TIPDOC,                                          00772275
+--                   A.NRODOC,                                          00772375
+--                   A.NROCLI,                                          00772475
+--                   A.NOMAPE,                                          00772575
+--                   A.FECNAC,                                          00772675
+--                   A.SEXO                                             00772775
+--            FROM KC02803.TBCURCLI A                                   00772875
+--            WHERE NOT EXISTS                                          00772975
+--                  (SELECT 1                                           00773075
+--                     FROM KC02803.TBCURCTA B                          00773175
+--                     WHERE B.NROCLI = A.NROCLI)                       00773275
+--                     ORDER BY NROCLI                                  00773377
+--                                                                      00774077
+--   CURSOR C5 - CUENTAS DUPLICADAS                                     00775075
+--     SELECT TIPCUEN,                                                  00775178
+--            NROCUEN,                                                  00775278
+--            SUCUEN,                                                   00775378
+--            NROCLI,                                                   00775478
+--            SALDO,                                                    00775578
+--            FECSAL,                                                   00775678
+--            COUNT(*)                                                  00775778
+--     FROM   KC02803.TBCURCTA                                          00775878
+--     GROUP BY TIPCUEN,                                                00775978
+--              NROCUEN,                                                00776078
+--              SUCUEN,                                                 00776178
+--              NROCLI,                                                 00776278
+--              SALDO,                                                  00776378
+--              FECSAL                                                  00776478
+--     HAVING COUNT(*) > 1;                                             00776578
+--                                                                      00777078
+--   CURSOR C6 - CUENTAS SIN CLIENTE                                    00780072
+--     SELECT A.TIPCUEN,                                                00790079
+--            A.NROCUEN,                                                00800079
+--            A.SUCUEN,                                                 00810079
+--            A.NROCLI,                                                 00820079
+--            A.SALDO,                                                  00830079
+--            A.FECSAL                                                  00840079
+--     FROM KC02803.TBCURCTA A                                          00850079
+--     LEFT JOIN KC02803.TBCURCLI B                                     00860079
+--            ON A.NROCLI = B.NROCLI                                    00870079
+--     WHERE B.NROCLI IS NULL                                           00880079
+--     ORDER BY NROCLI ASC;                                             00890079
+                                                                        00891079
+--   CURSOR C7 - CUENTAS CON SALDO  NEGATIVO                            00892081
+       SELECT *                                                         00900079
+         FROM KC02803.TBCURCTA                                          00910079
+        WHERE SALDO < 0;                                                00920080

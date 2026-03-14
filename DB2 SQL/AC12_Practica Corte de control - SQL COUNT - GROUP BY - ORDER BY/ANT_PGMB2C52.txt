@@ -58,70 +58,53 @@
       ********************************************************          00061800
       *  AREA DE COMUNICACION Y DEFINICION SQL DB2           *          00061900
       ********************************************************          00062000
-            EXEC SQL                                                    00062125
-                 INCLUDE SQLCA                                          00062225
-            END-EXEC.                                                   00062325
-                                                                        00062425
-            EXEC SQL                                                    00062525
-                 INCLUDE TBCURCLI                                       00062625
-            END-EXEC.                                                   00062725
-                                                                        00062825
-            EXEC SQL                                                    00063025
-                 INCLUDE TBCURCTA                                       00063125
-            END-EXEC.                                                   00063225
-                                                                        00063325
-            EXEC SQL                                                    00065326
-              DECLARE   TBCURCTA_CURSOR CURSOR FOR                      00065426
-              SELECT A.TIPCUEN,                                         00065629
-                      A.NROCUEN,                                        00065727
-                      A.SUCUEN,                                         00065827
-                      A.NROCLI,                                         00065927
-                      B.NOMAPE,                                         00066027
-                      A.SALDO,                                          00066127
-                      A.FECSAL                                          00066243
-                 FROM KC02803.TBCURCTA A                                00066432
-                      INNER JOIN                                        00066529
-                      KC02803.TBCURCLI B                                00066629
-                      ON  A.NROCLI = B.NROCLI                           00066727
-                WHERE A.SALDO > 0                                       00066832
-                ORDER BY SUCUEN                                         00067032
-            END-EXEC.                                                   00067126
-                                                                        00067227
-                                                                        00068027
-       77  FILLER        PIC X(26) VALUE '* FINAL  WORKING-STORAGE *'.  00068127
-                                                                        00068227
-      ***************************************************************.  00068327
-       PROCEDURE DIVISION.                                              00068438
-      **************************************                            00068527
-      *                                    *                            00068627
-      *  CUERPO PRINCIPAL DEL PROGRAMA     *                            00068727
-      *                                    *                            00068827
-      **************************************                            00068927
-       MAIN-PROGRAM.                                                    00069027
-                                                                        00069127
-           PERFORM 1000-I-INICIO   THRU                                 00069227
-                   1000-F-INICIO.                                       00069327
-                                                                        00069427
-           PERFORM 2000-I-PROCESO  THRU                                 00069527
-                   2000-F-PROCESO  UNTIL WS-FIN-CURSOR.                 00069627
-                                                                        00069835
-           PERFORM 2100-I-CORTE-SUCURSAL                                00069935
-              THRU 2100-F-CORTE-SUCURSAL.                               00070035
-                                                                        00070135
-           PERFORM 9999-I-FINAL    THRU                                 00070235
-                   9999-F-FINAL.                                        00070335
-                                                                        00070435
-       F-MAIN-PROGRAM. GOBACK.                                          00070535
-                                                                        00070635
-      *********************************************                     00070735
-      * INICIO PROGRAMA                           *                     00070835
-      *********************************************                     00070935
-       1000-I-INICIO.                                                   00071035
-                                                                        00071135
-           INITIALIZE  WS-TOTAL-GRAL                                    00071235
-                       WS-CANT-SUC.                                     00071335
-                                                                        00071435
-           SET WS-NO-FIN-CURSOR TO TRUE.                                00072012
+            EXEC SQL                                                    00062100
+              INCLUDE SQLCA                                             00062200
+            END-EXEC.                                                   00062300
+                                                                        00062400
+            EXEC SQL                                                    00062500
+              INCLUDE TBCURCTA                                          00062600
+            END-EXEC.                                                   00062700
+                                                                        00062800
+            EXEC SQL                                                    00063300
+              DECLARE   TBCURCTA_CURSOR CURSOR FOR                      00063402
+              SELECT    SUCUEN, COUNT(*)                                00063512
+                FROM    KC02803.TBCURCTA                                00064304
+               GROUP BY SUCUEN                                          00064402
+               ORDER BY SUCUEN                                          00064502
+            END-EXEC.                                                   00064700
+                                                                        00064800
+       77  FILLER        PIC X(26) VALUE '* FINAL  WORKING-STORAGE *'.  00064900
+                                                                        00065000
+      ***************************************************************.  00065100
+       PROCEDURE DIVISION.                                              00065200
+      **************************************                            00065300
+      *                                    *                            00065400
+      *  CUERPO PRINCIPAL DEL PROGRAMA     *                            00065500
+      *                                    *                            00065600
+      **************************************                            00065700
+       MAIN-PROGRAM.                                                    00065800
+                                                                        00065900
+           PERFORM 1000-I-INICIO   THRU                                 00066000
+                   1000-F-INICIO.                                       00066100
+                                                                        00066200
+           PERFORM 2000-I-PROCESO  THRU                                 00066300
+                   2000-F-PROCESO  UNTIL WS-FIN-CURSOR.                 00066412
+                                                                        00066501
+           PERFORM 9999-I-FINAL    THRU                                 00066900
+                   9999-F-FINAL.                                        00067000
+                                                                        00067100
+       F-MAIN-PROGRAM. GOBACK.                                          00067200
+                                                                        00067300
+      *********************************************                     00067401
+      * INICIO PROGRAMA                           *                     00067501
+      *********************************************                     00067601
+       1000-I-INICIO.                                                   00067700
+                                                                        00067800
+           INITIALIZE  WS-TOTAL-GRAL                                    00068503
+                       WS-CANT-SUC.                                     00068619
+                                                                        00069300
+           SET WS-NO-FIN-CURSOR TO TRUE.                                00071012
                                                                         00072400
            EXEC SQL                                                     00075800
               OPEN TBCURCTA_CURSOR                                      00075900
@@ -138,7 +121,6 @@
            ELSE                                                         00077001
               PERFORM 8100-I-FETCH-CURSOR                               00077101
                  THRU 8100-F-FETCH-CURSOR                               00077201
-                 MOVE WS-SUCUEN TO WS-SUCURSAL-ANT                      00077335
               DISPLAY '********************************************'    00077503
               DISPLAY '* REPORTE CANTIDAD DE CUENTAS POR SUCURSAL *'    00077612
               DISPLAY '********************************************'    00077803
@@ -151,13 +133,10 @@
       *  PROCESO PRINCIPAL DEL PROGRAMA      *                          00078503
       ****************************************                          00078603
        2000-I-PROCESO.                                                  00078703
-           IF WS-SUCUEN = WS-SUCURSAL-ANT                               00078835
-              ADD 1 TO WS-CANT-SUC                                      00078935
-           ELSE                                                         00079035
-              PERFORM 2100-I-CORTE-SUCURSAL                             00079135
-                 THRU 2100-F-CORTE-SUCURSAL                             00079235
-           END-IF                                                       00079637
-                                                                        00079737
+                                                                        00078811
+           PERFORM 2100-I-CORTE-SUCURSAL                                00079011
+              THRU 2100-F-CORTE-SUCURSAL                                00079111
+                                                                        00079603
            PERFORM 8100-I-FETCH-CURSOR                                  00079903
               THRU 8100-F-FETCH-CURSOR.                                 00080003
                                                                         00090001
@@ -168,41 +147,29 @@
       ****************************************                          00092101
        2100-I-CORTE-SUCURSAL.                                           00092305
                                                                         00092415
-      * GUARDO LOS DATOS ANTERIORES AL CORTE PARA NO PERDERLOS.         00092538
-           MOVE WS-SUCURSAL-ANT    TO WS-EDIT                           00092636
+           MOVE WS-SUCUEN          TO WS-EDIT                           00092519
            DISPLAY '  SUCURSAL NRO. ' WS-EDIT                           00093019
            MOVE WS-CANT-SUC        TO WS-EDIT                           00093116
            DISPLAY '        CANTIDAD CUENTAS : ' WS-EDIT                00094016
            DISPLAY '              '                                     00095001
-                                                                        00095138
-      * ACUMULO EL TOTAL PARCIAL AL TOTAL GENERAL                       00095238
-      * QUE MUESTRO EN LOS TOTALES DE CONTROL                           00095338
-           ADD WS-CANT-SUC TO WS-TOTAL-GRAL                             00095438
-                                                                        00095538
-      * ACTUALIZO LA CLAVE Y CONTABILIZO EL QUE TENGO LEIDO EN MEMORIA  00095638
-           MOVE 1     TO WS-CANT-SUC                                    00096035
-           MOVE WS-SUCUEN TO WS-SUCURSAL-ANT.                           00096235
-                                                                        00096335
-       2100-F-CORTE-SUCURSAL. EXIT.                                     00096405
-                                                                        00096500
-      **************************************                            00096600
-      *  LECTURA DE CURSOR TBCURCTA        *                            00096700
-      **************************************                            00096800
-       8100-I-FETCH-CURSOR.                                             00096900
-                                                                        00097000
-           EXEC SQL                                                     00097100
-              FETCH  TBCURCTA_CURSOR                                    00097200
-               INTO  :WS-TIPCUEN,                                       00097335
-                     :WS-NROCUEN,                                       00097535
-                     :WS-SUCUEN,                                        00097635
-                     :WS-NROCLI,                                        00097735
-                     :WT-NOMAPE,                                        00097835
-                     :WS-SALDO,                                         00097935
-                     :WS-FECSAL                                         00098035
-           END-EXEC.                                                    00098100
-                                                                        00098226
-           EVALUATE TRUE                                                00098300
-             WHEN SQLCODE EQUAL ZEROS                                   00098400
+           MOVE ZEROS TO WS-CANT-SUC.                                   00096016
+                                                                        00096201
+       2100-F-CORTE-SUCURSAL. EXIT.                                     00096305
+                                                                        00096400
+      **************************************                            00096500
+      *  LECTURA DE CURSOR TBCURCTA        *                            00096600
+      **************************************                            00096700
+       8100-I-FETCH-CURSOR.                                             00096800
+                                                                        00096900
+           EXEC SQL                                                     00097000
+              FETCH  TBCURCTA_CURSOR                                    00097100
+               INTO  :WS-SUCUEN,                                        00097210
+                     :WS-CANT-SUC                                       00097312
+           END-EXEC.                                                    00098000
+                                                                        00098100
+           EVALUATE TRUE                                                00098200
+             WHEN SQLCODE EQUAL ZEROS                                   00098300
+                ADD WS-CANT-SUC TO WS-TOTAL-GRAL                        00099319
                 ADD 1 TO WS-LEIDOS-CURSOR                               00099619
                                                                         00099710
              WHEN SQLCODE EQUAL +100                                    00099800
@@ -223,21 +190,20 @@
       **************************************                            00104600
       *  CUERPO FINAL CIERRE DE FILES      *                            00104700
       **************************************                            00104800
-       9999-I-FINAL.                                                    00104924
-                                                                        00105024
-           EXEC SQL                                                     00105222
-               CLOSE TBCURCTA_CURSOR                                    00105322
-           END-EXEC.                                                    00105430
-                                                                        00105621
-           IF SQLCODE NOT EQUAL ZEROS                                   00105700
-              MOVE SQLCODE TO WS-SQLCODE                                00105800
-              DISPLAY '************************************'            00105930
-              DISPLAY '* ERROR EN CLOSE CURSOR TBCURCTA   *'            00106030
-              DISPLAY   '* ERROR CODE :' WS-SQLCODE                     00106100
-              DISPLAY '************************************'            00106230
-              MOVE 9999 TO RETURN-CODE                                  00106300
-           END-IF.                                                      00106400
-                                                                        00106500
+       9999-I-FINAL.                                                    00104900
+           EXEC SQL                                                     00105000
+              CLOSE TBCURCTA_CURSOR                                     00105100
+           END-EXEC.                                                    00105200
+                                                                        00105300
+           IF SQLCODE NOT EQUAL ZEROS                                   00105400
+              MOVE SQLCODE TO WS-SQLCODE                                00105500
+                DISPLAY '************************************'          00105600
+                DISPLAY '* ERROR EN CLOSE CURSOR TBCURCTA   *'          00105700
+              DISPLAY   '* ERROR CODE :' WS-SQLCODE                     00105800
+                DISPLAY '************************************'          00105900
+              MOVE 9999 TO RETURN-CODE                                  00106000
+           END-IF.                                                      00106100
+                                                                        00106200
       **************************************                            00107400
       *   MOSTRAR TOTALES DE CONTROL                                    00107500
       **************************************                            00107600
@@ -246,6 +212,8 @@
            DISPLAY '--------------------------------------------'.      00108116
            MOVE WS-TOTAL-GRAL    TO WS-EDIT                             00108216
            DISPLAY '* TOTAL GENERAL CUENTAS  : ' WS-EDIT.               00108315
+           MOVE WS-LEIDOS-CURSOR TO WS-EDIT                             00108416
+           DISPLAY '* TOTAL LEIDOS CURSOR    : ' WS-EDIT.               00108516
            DISPLAY '--------------------------------------------'.      00108616
                                                                         00108709
        9999-F-FINAL.                                                    00108809
