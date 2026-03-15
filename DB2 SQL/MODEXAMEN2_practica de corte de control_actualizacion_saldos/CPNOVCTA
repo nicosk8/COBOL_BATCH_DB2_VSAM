@@ -1,0 +1,18 @@
+      ******************************************************************
+      * ARCHIVO DE NOVEDADES DE CUENTAS DE DEBITOS Y CREDITOS          *
+      *                                                                *
+      * KC03C52.ARCHIVO.NOVCTA.NICOLE                                  *
+      *                                                                *
+      * LARGO REGISTRO 13                                              *
+      *                                                                *
+      *  KEY.... (1,5)                                                 *
+      *                                                                *
+      ******************************************************************
+       01  NOVEDADES-CUENTAS.
+           03 NOV-CTA-TIPCUEN          PIC X(2).
+           03 NOV-CTA-NROCUEN          PIC S9(5)V USAGE COMP-3.
+           03 NOV-CTA-NROCLI           PIC S9(3)V USAGE COMP-3.
+           03 NOV-CTA-SALDO            PIC S9(5)V9(2) USAGE COMP-3.
+
+      * TIPO DE MOVIMIENTO VALIDO 'CR' - 'DB'
+           03 NOV-CTA-TIPMOV           PIC X(2).

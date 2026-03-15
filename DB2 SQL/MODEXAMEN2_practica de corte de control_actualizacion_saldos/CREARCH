@@ -1,0 +1,19 @@
+//KC03C52J JOB CLASS=A,MSGCLASS=O,MSGLEVEL=(1,1),NOTIFY=&SYSUID         00010000
+//JOBLIB  DD  DSN=DSND10.SDSNLOAD,DISP=SHR                              00020000
+//        DD DSN=KC03C52.CURSOS.PGMLIB,DISP=SHR                         00021000
+//********************************                                      00021107
+//*   IDCAMS DELETE              *                                      00022007
+//********************************                                      00023007
+//STEP00   EXEC PGM=IDCAMS,COND=(8,LT)                                  00024007
+//SYSPRINT DD SYSOUT=*                                                  00025007
+//SYSIN    DD *                                                         00026007
+     DELETE   KC03C52.ARCHIVO.NOVCTA.NICOLE                             00027007
+//*                                                                     00028007
+//***************************************************************       00030000
+//* EJECUTAR STEP1 SOLO LA PRIMERA VEZ PARA DEFINIR SALIDA      *       00040000
+//***************************************************************       00050000
+//STEP01   EXEC PGM=IEFBR14                                             00070007
+//DD1      DD DSN=KC03C52.ARCHIVO.NOVCTA.NICOLE,UNIT=SYSDA,             00080005
+//            DCB=(LRECL=13,BLKSIZE=0,RECFM=FB),                        00090006
+//            SPACE=(TRK,(1,1),RLSE),DISP=(,CATLG)                      00100001
+//                                                                      00110001

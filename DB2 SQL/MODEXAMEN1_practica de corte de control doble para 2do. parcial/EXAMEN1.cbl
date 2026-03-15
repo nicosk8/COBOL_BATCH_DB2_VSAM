@@ -33,7 +33,7 @@
              BLOCK CONTAINS 0 RECORDS                                   00040200
              RECORDING MODE IS F.                                       00040300
                                                                         00040400
-       01 REG-ENTRADA     PIC X(80).                                    00040501
+       01 REG-ENTRADA     PIC X(26).                                    00040513
                                                                         00040600
        FD SALIDA                                                        00040701
              BLOCK CONTAINS 0 RECORDS                                   00040801
@@ -283,107 +283,23 @@
             END-EXEC.                                                   00091700
                                                                         00091800
       ***************************************************               00091900
-      * CURSOR C1 VALIDAR CLIENTES - DATOS              *               00092000
+      * CURSOR C1 QUE METRAE REGISTROS DE CLIENTES      *               00092012
       ***************************************************               00092100
             EXEC SQL                                                    00092200
               DECLARE C1 CURSOR FOR                                     00092300
               SELECT *                                                  00092400
                 FROM KC02803.TBCURCLI                                   00092500
-              ORDER BY NROCLI ASC                                       00092600
+              ORDER BY TIPDOC, SEXO ASC                                 00092612
             END-EXEC.                                                   00092700
                                                                         00092800
-      *******************************************************           00092900
-      * CURSOR C2 PARA VALIDAR CLIENTES DUPLICADOS          *           00093000
-      *******************************************************           00093100
-            EXEC SQL                                                    00093200
-              DECLARE C2 CURSOR FOR                                     00093300
-              SELECT *                                                  00093400
-              FROM   KC02803.TBCURCLI                                   00093500
-              WHERE NROCLI IN                                           00093600
-                    (SELECT NROCLI                                      00093700
-                       FROM KC02803.TBCURCLI                            00093800
-                     GROUP BY NROCLI                                    00093900
-                     HAVING COUNT(*) > 1)                               00094000
-                     ORDER BY NROCLI                                    00094100
-            END-EXEC.                                                   00094200
-                                                                        00094300
-      *********************************************************         00094400
-      * CURSOR C3 SELECCIONAR CLIENTES QUE NO TIENEN CUENTAS  *         00094500
-      *********************************************************         00094600
-            EXEC SQL                                                    00094700
-              DECLARE C3 CURSOR FOR                                     00094800
-              SELECT A.TIPDOC,                                          00094900
-                     A.NRODOC,                                          00095000
-                     A.NROCLI,                                          00095100
-                     A.NOMAPE,                                          00095200
-                     A.FECNAC,                                          00095300
-                     A.SEXO                                             00095400
-              FROM KC02803.TBCURCLI A                                   00095500
-              WHERE NOT EXISTS                                          00095600
-                    (SELECT 1                                           00095700
-                       FROM KC02803.TBCURCTA B                          00095800
-                       WHERE B.NROCLI = A.NROCLI)                       00095900
-                       ORDER BY NROCLI                                  00096000
-            END-EXEC.                                                   00096100
-                                                                        00096200
       ***************************************************               00096300
-      * CURSOR C4 VALIDACION CUENTAS - DATOS            *               00096400
+      * CURSOR C4 QUE METRAE REGISTROS DE CUENTAS       *               00096412
       ***************************************************               00096500
             EXEC SQL                                                    00096600
               DECLARE C4 CURSOR FOR                                     00096700
               SELECT *                                                  00096800
                 FROM KC02803.TBCURCTA                                   00096900
             END-EXEC.                                                   00097000
-                                                                        00097100
-      *******************************************************           00097200
-      * CURSOR C5 PARA VALIDAR DUPLICADOS EN TBCURCTA       *           00097300
-      *******************************************************           00097400
-            EXEC SQL                                                    00097500
-              DECLARE C5 CURSOR FOR                                     00097600
-              SELECT TIPCUEN,                                           00097700
-                     NROCUEN,                                           00097800
-                     SUCUEN,                                            00097900
-                     NROCLI,                                            00098000
-                     SALDO,                                             00098100
-                     FECSAL,                                            00098200
-                     COUNT(*)                                           00098300
-              FROM   KC02803.TBCURCTA                                   00098400
-              GROUP BY TIPCUEN,                                         00098500
-                       NROCUEN,                                         00098600
-                       SUCUEN,                                          00098700
-                       NROCLI,                                          00098800
-                       SALDO,                                           00098900
-                       FECSAL                                           00099000
-              HAVING COUNT(*) > 1                                       00099100
-            END-EXEC.                                                   00099200
-                                                                        00099300
-      *******************************************************           00099400
-      * CURSOR C6 SELECCIONAR CUENTAS QUE NO TIENEN CLIENTE *           00099500
-      *******************************************************           00099600
-            EXEC SQL                                                    00099700
-              DECLARE C6 CURSOR FOR                                     00099800
-              SELECT A.TIPCUEN,                                         00099900
-                     A.NROCUEN,                                         00100000
-                     A.SUCUEN,                                          00100100
-                     A.NROCLI,                                          00100200
-                     A.SALDO,                                           00100300
-                     A.FECSAL                                           00100400
-              FROM KC02803.TBCURCTA A                                   00100500
-              LEFT JOIN KC02803.TBCURCLI B                              00100600
-                     ON A.NROCLI = B.NROCLI                             00100700
-              WHERE B.NROCLI IS NULL                                    00100800
-              ORDER BY NROCLI ASC                                       00100900
-            END-EXEC.                                                   00101000
-                                                                        00101100
-      ***************************************************               00101200
-      * CURSOR C7 PARA TRAER LOS SALDOS NEGATIVOS       *               00101300
-      ***************************************************               00101400
-            EXEC SQL                                                    00101500
-              DECLARE C7 CURSOR FOR                                     00101600
-              SELECT *                                                  00101700
-                FROM KC02803.TBCURCTA                                   00101800
-               WHERE SALDO < 0                                          00101900
-            END-EXEC.                                                   00102000
                                                                         00102100
        77  FILLER        PIC X(26) VALUE '* FINAL  WORKING-STORAGE *'.  00102200
                                                                         00102300
@@ -400,38 +316,44 @@
            PERFORM 2000-I-PROCESO                                       00103400
               THRU 2000-F-PROCESO                                       00103500
              UNTIL WS-FIN-PROCESO OR WS-FIN-CURSOR.                     00103707
-                                                                        00103900
-           PERFORM 9999-I-FINAL    THRU                                 00104000
-                   9999-F-FINAL.                                        00104100
-                                                                        00104200
-       F-MAIN-PROGRAM. GOBACK.                                          00104300
+                                                                        00103820
+           PERFORM 2300-I-CORTE-MENOR                                   00103926
+              THRU 2300-F-CORTE-MENOR                                   00104026
+                                                                        00104126
+           PERFORM 2200-I-CORTE-MAYOR                                   00104226
+              THRU 2200-F-CORTE-MAYOR                                   00104326
                                                                         00104400
-      **************************************                            00104500
-      *  CUERPO INICIO APERTURA ARCHIVOS   *                            00104600
-      **************************************                            00104700
-       1000-I-INICIO.                                                   00104800
-                                                                        00104902
-           MOVE FUNCTION CURRENT-DATE TO WS-FECHA-AUX.                  00105200
-           MOVE WS-FECHA-AUX(1:4)     TO WS-AAAA.                       00105300
-           MOVE WS-FECHA-AUX(5:2)     TO WS-MM.                         00105400
-           MOVE WS-FECHA-AUX(7:2)     TO WS-DD.                         00105500
-           MOVE 16 TO WS-CUENTA-LINEA                                   00105600
-                                                                        00105700
-           SET WS-SI-INICIO  TO TRUE.                                   00105803
-           SET WS-SI-PROCESO TO TRUE.                                   00105903
+           PERFORM 9999-I-FINAL    THRU                                 00104500
+                   9999-F-FINAL.                                        00104600
+                                                                        00104700
+       F-MAIN-PROGRAM. GOBACK.                                          00104800
+                                                                        00104900
+      *************************************                             00105025
+      *  CUERPO INICIO APERTURA ARCHIVOS   *                            00105100
+      **************************************                            00105200
+       1000-I-INICIO.                                                   00105300
+                                                                        00105402
+           MOVE FUNCTION CURRENT-DATE TO WS-FECHA-AUX.                  00105500
+           MOVE WS-FECHA-AUX(1:4)     TO WS-AAAA.                       00105600
+           MOVE WS-FECHA-AUX(5:2)     TO WS-MM.                         00105700
+           MOVE WS-FECHA-AUX(7:2)     TO WS-DD.                         00105800
+           MOVE 16 TO WS-CUENTA-LINEA                                   00105900
+                                                                        00106000
+           SET WS-SI-INICIO  TO TRUE.                                   00106103
+           SET WS-SI-PROCESO TO TRUE.                                   00107003
                                                                         00109800
            PERFORM 8000-I-APERTURA-ARCHIVOS                             00111002
               THRU 8000-F-APERTURA-ARCHIVOS                             00111102
                                                                         00111202
-           IF WS-SI-PROCESO                                             00112402
-              PERFORM 8200-I-ABRIR-CURSOR                               00112503
-                 THRU 8200-F-ABRIR-CURSOR                               00112603
-           ELSE                                                         00112701
-              DISPLAY '*********************************'               00112801
-              DISPLAY '* ERROR EN APERTURA DE ARCHIVOS *'               00112901
-              DISPLAY '* APERTURA DE CURSOR CANCELADA  *'               00113001
-              DISPLAY '*********************************'               00113101
-           END-IF                                                       00113203
+           IF FS-ENTRADA = '00' AND  FS-SALIDA  = '00'                  00111314
+              PERFORM 8200-I-ABRIR-CURSOR                               00111414
+                 THRU 8200-F-ABRIR-CURSOR                               00111514
+           ELSE                                                         00111614
+              DISPLAY '*********************************'               00111714
+              DISPLAY '* ERROR EN APERTURA DE ARCHIVOS *'               00111814
+              DISPLAY '* APERTURA DE CURSOR CANCELADA  *'               00111914
+              DISPLAY '*********************************'               00112014
+           END-IF                                                       00112114
                                                                         00113303
       *    PERFORM 8005-I-LECTURA-INICIAL                               00113407
       *       THRU 8005-F-LECTURA-INICIAL.                              00113507
@@ -451,82 +373,129 @@
       *  CUERPO PRINCIPAL DEL PROGRAMA     *                            00120702
       **************************************                            00120802
        2000-I-PROCESO.                                                  00120902
-                                                                        00121002
-            IF WT-TIPDOC = WS-TIPDOC-ANT                                00121107
-                                                                        00121207
-                  ADD 1 TO WS-TOT-GRAL                                  00122107
-                                                                        00122207
-                  IF WT-SEXO = WS-SEXO-ANT                              00122307
-                      ADD 1 TO WS-SUB-TOT-SEXO                          00122407
-                  ELSE                                                  00122607
-      *               --------------- CORTE DE CLAVE MENOR -----------  00124007
-      *               GUARDO EL TOTAL PARCIAL DE LA CLAVE MENOR         00124107
-                      EVALUATE WS-TIPDOC-ANT                            00124208
-                      WHEN 'DU'                                         00124307
-                          EVALUATE WS-SEXO-ANT                          00124409
-                          WHEN 'F'                                      00124507
-                                    ADD WS-SUB-TOT-SEXO TO WS-CANT-DU-F 00124607
-                          WHEN 'M'                                      00124707
-                                    ADD WS-SUB-TOT-SEXO TO WS-CANT-DU-M 00124807
-                          WHEN 'O'                                      00124907
-                                    ADD WS-SUB-TOT-SEXO TO WS-CANT-DU-O 00125007
-                          END-EVALUATE                                  00125107
-                      WHEN 'PA'                                         00125207
-                          EVALUATE WS-SEXO-ANT                          00125408
-                          WHEN 'F'                                      00125507
-                                    ADD WS-SUB-TOT-SEXO TO WS-CANT-PA-F 00125607
-                          WHEN 'M'                                      00125707
-                                    ADD WS-SUB-TOT-SEXO TO WS-CANT-PA-M 00125807
-                          WHEN 'O'                                      00125907
-                                    ADD WS-SUB-TOT-SEXO TO WS-CANT-PA-O 00126007
-                          END-EVALUATE                                  00126107
-                      WHEN 'PE'                                         00126207
-                          EVALUATE WS-SEXO-ANT                          00126408
-                          WHEN 'F'                                      00126507
-                                    ADD WS-SUB-TOT-SEXO TO WS-CANT-PE-F 00126607
-                          WHEN 'M'                                      00126707
-                                    ADD WS-SUB-TOT-SEXO TO WS-CANT-PE-M 00126807
-                          WHEN 'O'                                      00126907
-                                    ADD WS-SUB-TOT-SEXO TO WS-CANT-PE-O 00127007
-                          END-EVALUATE                                  00127107
-                      END-EVALUATE                                      00127207
-      *               ACTUALIZO LA CLAVE MENOR                          00127407
-      *               Y RESETEO EN 1 EL CONTADOR PARCIAL                00127507
-      *               LA CLAVE DE CORTE MAYOR QUEDA INTACTA.            00127607
-                      MOVE WT-SEXO   TO WS-SEXO-ANT                     00127707
-                      MOVE 1         TO WS-SUB-TOT-SEXO                 00127807
-                  END-IF                                                00127907
-                                                                        00128007
-            ELSE
-      *               --------------- CORTE DE CLAVE MAYOR ------------ 00128107
-      *             ME GUARDO EL TOTAL GENERAL DE LA CLAVE MAYOR        00128207
-                    EVALUATE WS-TIPDOC-ANT                              00128608
-                    WHEN 'DU'                                           00128707
-                              ADD WS-TOT-GRAL TO WS-CANT-DU             00128807
-                    WHEN 'PA'                                           00128907
-                              ADD WS-TOT-GRAL TO WS-CANT-PA             00129007
-                    WHEN 'PE'                                           00129107
-                              ADD WS-TOT-GRAL TO WS-CANT-PE             00129207
-                    END-EVALUATE                                        00129307
-                                                                        00129407
-      *             RESETEO EN 1 EL CONTADOR GENERAL                    00129507
-      *             RESETEO EN 0 EL CONTADOR PARCIAL DE LA CLAVE MENOR  00129607
-      *             ACTUALIZO LA CLAVE MAYOR.                           00129707
-                    MOVE 1         TO WS-TOT-GRAL                       00129807
-                    MOVE ZEROES    TO WS-SUB-TOT-SEXO                   00129907
-                    MOVE WT-TIPDOC TO WS-TIPDOC-ANT                     00130007
-            END-IF.                                                     00130107
-                                                                        00130207
-      *     PERFORM 8050-I-LEER-ENTRADA                                 00130307
-      *        THRU 8050-F-LEER-ENTRADA                                 00130407
-                                                                        00130507
-      *    VOY A LEER EL SIGUIENTE REGISTRO QUE ACTUALIZA CLAVES        00130607
-      *    MAYOR Y MENOR ACTUALES Y VUELVE A PROCESAR.                  00130707
-           PERFORM 8400-I-LEER-CURSOR                                   00130807
-              THRU 8400-F-LEER-CURSOR                                   00130907
-            .                                                           00131007
+                                                                        00121622
+            IF WT-TIPDOC  = 'DU' OR                                     00121723
+               WT-TIPDOC  = 'PA' OR                                     00121823
+               WT-TIPDOC  = 'PE'                                        00121923
+                                                                        00122322
+                  IF WT-TIPDOC = WS-TIPDOC-ANT                          00122422
+                                                                        00122522
+                        ADD 1 TO WS-TOT-GRAL                            00122622
+                                                                        00122722
+                        IF WT-SEXO = WS-SEXO-ANT                        00122822
+                            ADD 1 TO WS-SUB-TOT-SEXO                    00122922
+                        ELSE                                            00123022
+      *                |----------------- CORTE DE CLAVE MENOR ---------00123122
+                            PERFORM 2300-I-CORTE-MENOR                  00123222
+                               THRU 2300-F-CORTE-MENOR                  00124022
+                        END-IF                                          00128022
+                  END-IF                                                00128122
+                                                                        00128222
+      *          |----------------------- CORTE DE CLAVE MAYOR ---------00128322
+                  IF WT-TIPDOC NOT = WS-TIPDOC-ANT                      00128422
+                       PERFORM 2300-I-CORTE-MENOR                       00128622
+                          THRU 2300-F-CORTE-MENOR                       00128722
+                       PERFORM 2200-I-CORTE-MAYOR                       00128822
+                          THRU 2200-F-CORTE-MAYOR                       00128922
+                  END-IF                                                00130222
+                                                                        00130322
+                  PERFORM 2900-I-ARMAR-REG-SALIDA-CLI                   00130422
+                     THRU 2900-F-ARMAR-REG-SALIDA-CLI                   00130522
+                                                                        00130622
+                  PERFORM 3000-I-GRABAR-LISTADO                         00130722
+                     THRU 3000-F-GRABAR-LISTADO                         00130822
+            ELSE                                                        00130923
+                  ADD 1 TO WS-ENTRADA-ERROR                             00131023
+            END-IF.                                                     00131122
+                                                                        00132022
+      *    VOY A LEER EL SIGUIENTE REGISTRO QUE ACTUALIZA CLAVES        00137222
+      *    MAYOR Y MENOR ACTUALES Y VUELVE A PROCESAR.                  00137322
+      *     PERFORM 8050-I-LEER-ENTRADA                                 00137422
+      *        THRU 8050-F-LEER-ENTRADA                                 00137522
+            PERFORM 8400-I-LEER-CURSOR                                  00137622
+               THRU 8400-F-LEER-CURSOR                                  00137722
+            .                                                           00139017
        2000-F-PROCESO. EXIT.                                            00140007
-                                                                        00151702
+                                                                        00140115
+      ******************************************************************00141015
+      * CORTE DE CLAVE MAYOR                                            00142015
+      ******************************************************************00143015
+       2200-I-CORTE-MAYOR.                                              00150015
+      *     DISPLAY '+++++ CORTE MAYOR +++++'                           00150127
+      *     ME GUARDO EL TOTAL GENERAL DE LA CLAVE MAYOR                00150215
+            EVALUATE WS-TIPDOC-ANT                                      00150315
+            WHEN 'DU'                                                   00150415
+                    MOVE  WS-TOT-GRAL TO WS-CANT-DU                     00150515
+      *             DISPLAY '*** CANTIDAD DU = ' WS-CANT-DU             00150627
+            WHEN 'PA'                                                   00150715
+                    MOVE  WS-TOT-GRAL TO WS-CANT-PA                     00150815
+      *             DISPLAY '*** CANTIDAD PA = ' WS-CANT-PA             00150927
+            WHEN 'PE'                                                   00151015
+                    MOVE  WS-TOT-GRAL TO WS-CANT-PE                     00151115
+      *             DISPLAY '*** CANTIDAD PE = ' WS-CANT-PE             00151227
+            END-EVALUATE                                                00151315
+                                                                        00151415
+      *     RESETEO EN 1 EL CONTADOR GENERAL                            00151515
+      *     RESETEO EN 0 EL CONTADOR PARCIAL DE LA CLAVE MENOR          00151615
+      *     ACTUALIZO LA CLAVE MAYOR.                                   00151715
+            MOVE 1         TO WS-TOT-GRAL                               00151815
+            MOVE 1         TO WS-SUB-TOT-SEXO                           00151924
+            MOVE WT-TIPDOC TO WS-TIPDOC-ANT                             00152015
+            .                                                           00152115
+       2200-F-CORTE-MAYOR. EXIT.                                        00152216
+                                                                        00152315
+      ******************************************************************00152415
+      * CORTE DE CLAVE MENOR                                            00152515
+      ******************************************************************00152615
+       2300-I-CORTE-MENOR.                                              00152715
+      *     DISPLAY '----- CORTE MENOR -----'                           00152829
+      *    GUARDO EL TOTAL PARCIAL DE LA CLAVE MENOR                    00152915
+           EVALUATE WS-TIPDOC-ANT                                       00153015
+           WHEN 'DU'                                                    00153115
+                     EVALUATE WS-SEXO-ANT                               00153215
+                     WHEN 'F'                                           00153315
+                             MOVE WS-SUB-TOT-SEXO TO WS-CANT-DU-F       00153419
+      *                      DISPLAY '>>> CANTIDAD DU-F = ' WS-CANT-DU-F00153527
+                     WHEN 'M'                                           00153615
+                             MOVE WS-SUB-TOT-SEXO TO WS-CANT-DU-M       00153719
+      *                      DISPLAY '>>> CANTIDAD DU-M = ' WS-CANT-DU-M00153827
+                     WHEN 'O'                                           00153915
+                             MOVE WS-SUB-TOT-SEXO TO WS-CANT-DU-O       00154019
+      *                      DISPLAY '>>> CANTIDAD DU-O = ' WS-CANT-DU-O00154127
+                     END-EVALUATE                                       00154215
+           WHEN 'PA'                                                    00154315
+                     EVALUATE WS-SEXO-ANT                               00154415
+                     WHEN 'F'                                           00154515
+                             MOVE WS-SUB-TOT-SEXO TO WS-CANT-PA-F       00154619
+      *                      DISPLAY '>>> CANTIDAD PA-F = ' WS-CANT-PA-F00154727
+                     WHEN 'M'                                           00154815
+                             MOVE WS-SUB-TOT-SEXO TO WS-CANT-PA-M       00154919
+      *                      DISPLAY '>>> CANTIDAD PA-M = ' WS-CANT-PA-M00155027
+                     WHEN 'O'                                           00155115
+                              MOVE WS-SUB-TOT-SEXO TO WS-CANT-PA-O      00155215
+      *                      DISPLAY '>>> CANTIDAD PA-O = ' WS-CANT-PA-O00155327
+                     END-EVALUATE                                       00155415
+           WHEN 'PE'                                                    00155515
+                     EVALUATE WS-SEXO-ANT                               00155615
+                     WHEN 'F'                                           00155715
+                             MOVE WS-SUB-TOT-SEXO TO WS-CANT-PE-F       00155819
+      *                      DISPLAY '>>> CANTIDAD PE-F = ' WS-CANT-PE-F00155927
+                     WHEN 'M'                                           00156015
+                             MOVE WS-SUB-TOT-SEXO TO WS-CANT-PE-M       00156119
+      *                      DISPLAY '>>> CANTIDAD PE-M = ' WS-CANT-PE-M00156227
+                     WHEN 'O'                                           00156315
+                             MOVE WS-SUB-TOT-SEXO TO WS-CANT-PE-O       00156419
+      *                      DISPLAY '>>> CANTIDAD PE-O = ' WS-CANT-PE-O00156527
+                     END-EVALUATE                                       00156615
+           END-EVALUATE                                                 00156715
+      *    Y RESETEO EN 1 EL CONTADOR PARCIAL                           00156915
+      *    ACTUALIZO LA CLAVE MENOR                                     00157024
+      *    LA CLAVE DE CORTE MAYOR QUEDA INTACTA.                       00157115
+           MOVE 1         TO WS-SUB-TOT-SEXO                            00157218
+           MOVE WT-SEXO   TO WS-SEXO-ANT                                00157315
+           .                                                            00157415
+       2300-F-CORTE-MENOR. EXIT.                                        00157515
+                                                                        00158015
       ***********************************************************       00166302
       *  ARMARDO DE SALIDA REGISTRO DE CLIENTE                  *       00166402
       ***********************************************************       00166502
@@ -566,14 +535,11 @@
                 PERFORM 9000-I-GRABAR-TITULOS                           00169902
                    THRU 9000-F-GRABAR-TITULOS                           00170002
            END-IF                                                       00170102
-                                                                        00170202
-      *    IF WS-TIPO-TABLA(ID-CURSOR) = 'CLIENTE'                      00170304
-                WRITE REG-SALIDA FROM WS-REG-SALIDA-CLI  AFTER 1        00170400
-      *    END-IF                                                       00170504
+                                                                        00170219
+      *    DISPLAY '>>>REG A GRABAR = ' WS-REG-SALIDA-CLI               00170328
+           WRITE REG-SALIDA FROM WS-REG-SALIDA-CLI  AFTER 1             00170412
                                                                         00170600
-      *    IF WS-TIPO-TABLA(ID-CURSOR) = 'CUENTAS'                      00170704
-                WRITE REG-SALIDA FROM WS-REG-SALIDA-CTA  AFTER 1        00170800
-      *    END-IF                                                       00170904
+      *    WRITE REG-SALIDA FROM WS-REG-SALIDA-CTA  AFTER 1             00170812
                                                                         00171000
            PERFORM 9996-I-VALIDAR-FS-ACTUAL                             00171102
               THRU 9996-F-VALIDAR-FS-ACTUAL                             00171202
@@ -602,16 +568,7 @@
            PERFORM 9996-I-VALIDAR-FS-ACTUAL                             00185002
               THRU 9996-F-VALIDAR-FS-ACTUAL                             00185102
                                                                         00185202
-           IF FS-ENTRADA = '00' AND  FS-SALIDA  = '00'                  00185302
-              PERFORM 8200-I-ABRIR-CURSOR                               00185404
-                 THRU 8200-F-ABRIR-CURSOR                               00185504
-           ELSE                                                         00185602
-              DISPLAY '*********************************'               00185702
-              DISPLAY '* ERROR EN APERTURA DE ARCHIVOS *'               00185802
-              DISPLAY '* APERTURA DE CURSOR CANCELADA  *'               00185902
-              DISPLAY '*********************************'               00186002
-           END-IF.                                                      00186102
-                                                                        00186202
+           .                                                            00186214
        8000-F-APERTURA-ARCHIVOS. EXIT.                                  00186302
                                                                         00186403
       **************************************                            00186503
@@ -801,21 +758,17 @@
                                                                         00205203
            ADD 1 TO WS-NRO-PAGINA                                       00205303
                                                                         00205403
-      *    IF WS-TIPO-TABLA(ID-CURSOR) = 'CLIENTE'                      00205505
-                MOVE 'CONTROL DE INTEGRIDAD DE CLIENTES'                00205603
-                                        TO WS-TITULO-LEYENDA            00205703
-                WRITE REG-SALIDA FROM WS-LINEA  AFTER PAGE              00205803
-                WRITE REG-SALIDA FROM WS-TITULO                         00205903
-                WRITE REG-SALIDA FROM WS-LINEA                          00206003
-      *    END-IF                                                       00206105
+           MOVE 'REGISTRO  DE CLIENTES PROCESADOS '                     00205617
+                                   TO WS-TITULO-LEYENDA                 00205712
+           WRITE REG-SALIDA FROM WS-LINEA  AFTER PAGE                   00205812
+           WRITE REG-SALIDA FROM WS-TITULO                              00205912
+           WRITE REG-SALIDA FROM WS-LINEA                               00206012
                                                                         00206203
-      *    IF WS-TIPO-TABLA(ID-CURSOR) = 'CUENTAS'                      00206305
-                MOVE 'CONTROL DE INTEGRIDAD DE CUENTAS '                00206403
-                                        TO WS-TITULO-LEYENDA            00206503
-                WRITE REG-SALIDA FROM WS-LINEA  AFTER PAGE              00206603
-                WRITE REG-SALIDA FROM WS-TITULO                         00206703
-                WRITE REG-SALIDA FROM WS-LINEA                          00206803
-      *    END-IF                                                       00206905
+      *    MOVE 'CONTROL DE INTEGRIDAD DE CUENTAS '                     00206412
+      *                            TO WS-TITULO-LEYENDA                 00206512
+      *    WRITE REG-SALIDA FROM WS-LINEA  AFTER PAGE                   00206612
+      *    WRITE REG-SALIDA FROM WS-TITULO                              00206712
+      *    WRITE REG-SALIDA FROM WS-LINEA                               00206812
                                                                         00207003
            PERFORM 9996-I-VALIDAR-FS-ACTUAL                             00207103
               THRU 9996-F-VALIDAR-FS-ACTUAL                             00207203
@@ -834,15 +787,11 @@
                                                                         00208503
            MOVE '9050-I-GRABAR-SUBTITULOS' TO WS-PARRAFO.               00208603
                                                                         00208703
-      *    IF WS-TIPO-TABLA(ID-CURSOR) = 'CLIENTE'                      00208805
-                WRITE REG-SALIDA FROM WS-SUBTITULO-TBCURCLI  AFTER 1    00208903
-                WRITE REG-SALIDA FROM WS-LINEA                          00209003
-      *    END-IF                                                       00209105
+           WRITE REG-SALIDA FROM WS-SUBTITULO-TBCURCLI  AFTER 1         00208912
+           WRITE REG-SALIDA FROM WS-LINEA                               00209012
                                                                         00209203
-      *    IF WS-TIPO-TABLA(ID-CURSOR) = 'CUENTAS'                      00209305
-                WRITE REG-SALIDA FROM WS-SUBTITULO-TBCURCTA  AFTER 1    00209403
-                WRITE REG-SALIDA FROM WS-LINEA                          00209503
-      *    END-IF                                                       00209605
+      *    WRITE REG-SALIDA FROM WS-SUBTITULO-TBCURCTA  AFTER 1         00209412
+      *    WRITE REG-SALIDA FROM WS-LINEA                               00209512
                                                                         00209703
            PERFORM 9996-I-VALIDAR-FS-ACTUAL                             00209803
               THRU 9996-F-VALIDAR-FS-ACTUAL.                            00209903
