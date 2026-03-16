@@ -18,7 +18,7 @@
 //***************************************************************
 //STEP01   EXEC PGM=IEFBR14
 //DD1      DD DSN=KC03C52.ARCHIVO.NOVCTA.NICOLE.VACIO,UNIT=SYSDA,
-//            DCB=(LRECL=13,BLKSIZE=0,RECFM=FB),
+//            DCB=(LRECL=13,BLKSIZE=32760,RECFM=FB),
 //            SPACE=(TRK,(1,1),RLSE),DISP=(,CATLG)
 //*
 //***************************************************************
@@ -40,24 +40,24 @@
 //***************************************************************
 //*     SORT POR TIPO DE CUENTA Y NRO DE CUENTA                 *
 //***************************************************************
-//*STEP04    EXEC PGM=SORT,COND=EVEN
-//*SYSOUT    DD SYSOUT=*
-//*SORTIN    DD DSN=KC03C52.ARCHIVO.NOVCTA.NICOLE,DISP=SHR
-//*SORTOUT   DD DSN=KC03C52.ARCHIVO.NOVCTA.NICOLE.SORT,DISP=OLD,
-//*          UNIT=SYSDA,
-//*          DCB=(LRECL=13,BLKSIZE=0,RECFM=FB),
-//*          SPACE=(TRK,(1,1),RLSE)
-//*SYSIN     DD *
-//*SORT     FORMAT=BI,FIELDS=(1,2,A,3,3,A)
-//*  SORT       FIELDS=(1,2,CH,A,3,3,PD,A,12,2,CH)
+//STEP04    EXEC PGM=SORT,COND=EVEN
+//SYSOUT    DD SYSOUT=*
+//SORTIN    DD DSN=KC03C52.ARCHIVO.NOVCTA.NICOLE,DISP=SHR
+//SORTOUT   DD DSN=KC03C52.ARCHIVO.NOVCTA.NICOLE.SORT,DISP=OLD,
+//          UNIT=SYSDA,
+//          DCB=(LRECL=13,BLKSIZE=0,RECFM=FB),
+//          SPACE=(TRK,(1,1),RLSE)
+//SYSIN     DD *
+   SORT     FORMAT=BI,FIELDS=(1,2,A,3,3,A,12,2,A)
+//*SORT FIELDS=(1,2,CH,A,3,3,PD,A,12,2,CH,A) USAR CON SOLO DATO DISPLAY
+//*                                  SI HAY DATO COMP, DEVUELVE RC=16
 //*
 //***************************************************************
 //*      EJECUTAR PROGRAMA COBOL CON SQL EMBEBIDO               *
 //***************************************************************
 //STEP05   EXEC PGM=IKJEFT01,DYNAMNBR=20,COND=(4,LT)                    00030002
 //SYSTSPRT DD SYSOUT=*                                                  00040002
-//DDENTRA  DD DSN=KC03C52.ARCHIVO.NOVCTA.NICOLE,DISP=SHR
-//*DDENTRA  DD DUMMY,DISP=SHR
+//DDENTRA  DD DSN=KC03C52.ARCHIVO.NOVCTA.NICOLE.SORT,DISP=SHR
 //DDSALE   DD DSN=KC03C52.LISTADO.EXAMEN2,DISP=OLD,
 //          UNIT=SYSDA,
 //          DCB=(LRECL=133,BLKSIZE=0,RECFM=FBA),

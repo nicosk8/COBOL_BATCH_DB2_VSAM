@@ -21,19 +21,11 @@
        INPUT-OUTPUT SECTION.                                            00019900
        FILE-CONTROL.                                                    00020000
                                                                         00020600
-             SELECT ENTRADA ASSIGN DDENTRA                              00021001
-             FILE STATUS IS FS-ENTRADA.                                 00022301
-                                                                        00022401
              SELECT SALIDA  ASSIGN DDSALE                               00022501
              FILE STATUS IS FS-SALIDA.                                  00022601
                                                                         00022701
        DATA DIVISION.                                                   00022801
        FILE SECTION.                                                    00022901
-       FD ENTRADA                                                       00040101
-             BLOCK CONTAINS 0 RECORDS                                   00040200
-             RECORDING MODE IS F.                                       00040300
-                                                                        00040400
-       01 REG-ENTRADA     PIC X(26).                                    00040513
                                                                         00040600
        FD SALIDA                                                        00040701
              BLOCK CONTAINS 0 RECORDS                                   00040801
@@ -49,7 +41,6 @@
       ****************************************                          00041801
       * FILE STATUS SALIDA LISTADO Y SQLCODE *                          00041901
       ****************************************                          00042001
-       77  FS-ENTRADA               PIC XX    VALUE SPACES.             00042101
        77  FS-SALIDA                PIC XX    VALUE SPACES.             00042201
        77  FS-ACTUAL                PIC XX    VALUE SPACES.             00042302
        77  WS-SQLCODE    PIC +++999 USAGE DISPLAY VALUE ZEROS.          00042402
@@ -86,7 +77,6 @@
                05  WS-CANT-PE-F        PIC 9(03) VALUE ZEROS.           00046807
                05  WS-CANT-PE-M        PIC 9(03) VALUE ZEROS.           00046907
                05  WS-CANT-PE-O        PIC 9(03) VALUE ZEROS.           00047007
-           03  WS-ENTRADA-LEIDOS       PIC 9(03) VALUE ZEROS.           00047107
            03  WS-ENTRADA-ERROR        PIC 9(03) VALUE ZEROS.           00047207
            03  WS-C1-LEIDOS            PIC 9(03) VALUE ZEROS.           00047308
            03  WS-GRABADOS             PIC 9(03) VALUE ZEROS.           00047408
@@ -94,10 +84,6 @@
       *****************************************                         00047608
       *  BANDERAS/FLAGS                       *                         00047708
       *****************************************                         00047808
-       01  WS-FLAG-INICIO           PIC X.                              00047908
-           88  WS-NO-INICIO            VALUE 'F'.                       00048008
-           88  WS-SI-INICIO            VALUE 'T'.                       00048108
-                                                                        00048208
        01  WS-FLAG-PROCESO          PIC X VALUE 'T'.                    00048308
            88  WS-SI-PROCESO           VALUE 'T'.                       00048408
            88  WS-FIN-PROCESO          VALUE 'F'.                       00048508
@@ -110,9 +96,6 @@
            88  WS-CURSOR-ABIERTO-SI    VALUE 'T'.                       00049208
            88  WS-CURSOR-ABIERTO-NO    VALUE 'F'.                       00049308
                                                                         00049408
-       01  WS-ESTADO-ENTRADA        PIC X VALUE 'F'.                    00049508
-           88  WS-FIN-ENTRADA          VALUE 'T'.                       00049608
-                                                                        00049708
       *****************************************                         00049808
       *  VARIABLES AUXILARES.                *                          00049908
       *****************************************                         00050008
@@ -131,15 +114,13 @@
       *****************************************                         00055300
       *   IMPRESION DE TITULOS LISTADO        *                         00055400
       *****************************************                         00055500
-       01 WS-LINEA       PIC X(132) VALUE ALL '-'.                      00055700
+       01 WS-LINEA                  PIC X(132) VALUE ALL '-'.           00055730
                                                                         00055800
        01 WS-TITULO.                                                    00055900
-          03  FILLER     PIC X(05) VALUE SPACES.                        00056000
+          03  FILLER                PIC X(05) VALUE SPACES.             00056030
           03  WS-TITULO-LEYENDA     PIC X(33) VALUE SPACES.             00057200
-      *       TIPO DE TABLA CLI =  'CONTROL DE INTEGRIDAD DE CLIENTES'. 00058000
-      *       TIPO DE TABLA CTA =  'CONTROL DE INTEGRIDAD DE CUENTAS '. 00058100
-          03  FILLER                PIC X(28)    VALUE SPACES.          00058200
-          03  FILLER                PIC X(10)    VALUE '   FECHA: '.    00058300
+          03  FILLER                PIC X(28) VALUE SPACES.             00058230
+          03  FILLER                PIC X(10) VALUE '   FECHA: '.       00058330
           03  WS-FECHA.                                                 00059000
               05  WS-DD             PIC 9(02).                          00060000
               05  FILLER            PIC X       VALUE '/'.              00061000
@@ -204,79 +185,17 @@
           03  FILLER              PIC X(05)     VALUE SPACES.           00077100
           03  REG-CLI-SEXO        PIC X         VALUE SPACES.           00077200
                                                                         00077300
-      ****************************************************              00077400
-      *  SUBTITULOS DE LISTADO TABLA DE CUENTAS          *              00077500
-      ****************************************************              00077600
-       01 WS-SUBTITULO-TBCURCTA.                                        00077700
-          03 FILLER                 PIC X     VALUE '|'.                00077800
-          03 FILLER                 PIC X(16) VALUE                     00077900
-                         ' TIPO DE CUENTA '.                            00078000
-          03 FILLER                 PIC X     VALUE '|'.                00078100
-          03 FILLER                 PIC X(15) VALUE                     00078200
-                         ' NRO DE CUENTA '.                             00078300
-          03 FILLER                 PIC X     VALUE '|'.                00078400
-          03 FILLER                 PIC X(17) VALUE                     00078500
-                         ' SUCURSAL CUENTA '.                           00078600
-          03 FILLER                 PIC X     VALUE '|'.                00078700
-          03 FILLER                 PIC X(16) VALUE                     00078800
-                         ' NRO DE CLIENTE '.                            00078900
-          03 FILLER                 PIC X     VALUE '|'.                00079300
-          03 FILLER                 PIC X(10) VALUE                     00079400
-                         '  SALDO  '.                                   00079500
-          03 FILLER                 PIC X     VALUE '|'.                00079600
-          03 FILLER                 PIC X(21) VALUE                     00079700
-                         '  FECHA ACTUALIZACION'.                       00079800
-                                                                        00079900
-      *****************************************                         00080000
-      *         LAYOUT TABLA DE CUENTAS       *                         00080100
-      *****************************************                         00080200
-       01 WS-REG-SALIDA-CTA.                                            00080300
-          03  FILLER              PIC X         VALUE '|'.              00080400
-          03  FILLER              PIC X(04)     VALUE SPACES.           00080500
-          03  REG-CTA-TIPCUEN     PIC X(02)     VALUE SPACES.           00080600
-          03  FILLER              PIC X(10)     VALUE SPACES.           00080700
-          03  FILLER              PIC X         VALUE '|'.              00080800
-          03  REG-CTA-NROCUEN     PIC Z(05)     VALUE ZEROS.            00080900
-          03  FILLER              PIC X(10)     VALUE SPACES.           00081000
-          03  FILLER              PIC X         VALUE '|'.              00081100
-          03  REG-CTA-SUCUEN      PIC Z(02)     VALUE ZEROS.            00081200
-          03  FILLER              PIC X(15)     VALUE SPACES.           00081300
-          03  FILLER              PIC X         VALUE '|'.              00081400
-          03  REG-CTA-NROCLI      PIC Z(03)     VALUE ZEROS.            00081500
-          03  FILLER              PIC X(13)     VALUE SPACES.           00081600
-          03  FILLER              PIC X         VALUE '|'.              00081700
-          03  REG-CTA-SALDO       PIC $Z.ZZ9,99- VALUE ZEROS.           00082000
-          03  FILLER              PIC X         VALUE '|'.              00082100
-          03  FILLER              PIC X(03)     VALUE SPACES.           00082200
-          03  REG-CTA-FECSAL.                                           00082300
-              05 REG-FECSAL-AAAA  PIC 9(04)     VALUE ZEROES.           00082400
-              05 FILLER           PIC X         VALUE '/'.              00082500
-              05 REG-FECSAL-MM    PIC 9(02)     VALUE ZEROES.           00082600
-              05 FILLER           PIC X         VALUE '/'.              00082700
-              05 REG-FECSAL-DD    PIC 9(02)     VALUE ZEROES.           00082800
-                                                                        00082900
       *****************************************                         00084607
       *   FIN IMPRESION DE TITULOS LISTADO    *                         00084707
       *****************************************                         00084807
        77  FILLER        PIC X(26) VALUE '* VARIABLES SQL          *'.  00084907
                                                                         00085007
-      ********************************************************          00085107
-      *  AREA DE COPYS                                       *          00085207
-      ********************************************************          00085307
-                                                                        00085407
-      **   AGREGAR ACA LA COPY DE ARCHIVO DE ENTRADA        **          00085507
-      *     COPY NOVECLIE.  <= EJEMPLO                                  00085607
-                                                                        00086007
       ********************************************************          00090400
       *  AREA DE COMUNICACION Y DEFINICION SQL DB2           *          00090500
       ********************************************************          00090600
             EXEC SQL                                                    00090700
               INCLUDE SQLCA                                             00090800
             END-EXEC.                                                   00090900
-                                                                        00091000
-            EXEC SQL                                                    00091100
-              INCLUDE TBCURCTA                                          00091200
-            END-EXEC.                                                   00091300
                                                                         00091400
             EXEC SQL                                                    00091500
               INCLUDE TBCURCLI                                          00091600
@@ -292,15 +211,6 @@
               ORDER BY TIPDOC, SEXO ASC                                 00092612
             END-EXEC.                                                   00092700
                                                                         00092800
-      ***************************************************               00096300
-      * CURSOR C4 QUE METRAE REGISTROS DE CUENTAS       *               00096412
-      ***************************************************               00096500
-            EXEC SQL                                                    00096600
-              DECLARE C4 CURSOR FOR                                     00096700
-              SELECT *                                                  00096800
-                FROM KC02803.TBCURCTA                                   00096900
-            END-EXEC.                                                   00097000
-                                                                        00102100
        77  FILLER        PIC X(26) VALUE '* FINAL  WORKING-STORAGE *'.  00102200
                                                                         00102300
       ***************************************************************.  00102400
@@ -339,34 +249,30 @@
            MOVE WS-FECHA-AUX(7:2)     TO WS-DD.                         00105800
            MOVE 16 TO WS-CUENTA-LINEA                                   00105900
                                                                         00106000
-           SET WS-SI-INICIO  TO TRUE.                                   00106103
            SET WS-SI-PROCESO TO TRUE.                                   00107003
                                                                         00109800
            PERFORM 8000-I-APERTURA-ARCHIVOS                             00111002
               THRU 8000-F-APERTURA-ARCHIVOS                             00111102
                                                                         00111202
-           IF FS-ENTRADA = '00' AND  FS-SALIDA  = '00'                  00111314
+           IF FS-SALIDA  = '00'                                         00111331
               PERFORM 8200-I-ABRIR-CURSOR                               00111414
                  THRU 8200-F-ABRIR-CURSOR                               00111514
-           ELSE                                                         00111614
-              DISPLAY '*********************************'               00111714
-              DISPLAY '* ERROR EN APERTURA DE ARCHIVOS *'               00111814
-              DISPLAY '* APERTURA DE CURSOR CANCELADA  *'               00111914
-              DISPLAY '*********************************'               00112014
-           END-IF                                                       00112114
-                                                                        00113303
-      *    PERFORM 8005-I-LECTURA-INICIAL                               00113407
-      *       THRU 8005-F-LECTURA-INICIAL.                              00113507
-                                                                        00113607
-      *    LECTURA INICIAL DE CURSOR.                                   00113707
-           PERFORM 8400-I-LEER-CURSOR                                   00113807
-              THRU 8400-F-LEER-CURSOR                                   00113907
-                                                                        00114007
-      *    CARGO LAS VARIABLES DE CORTE MAYOR Y MENOR.                  00114107
-      *    PARA QUE ENTRE A PROCESAR.                                   00114207
-           MOVE WT-TIPDOC TO WS-TIPDOC-ANT                              00114307
-           MOVE WT-SEXO   TO WS-SEXO-ANT.                               00114407
-                                                                        00114507
+                                                                        00111631
+      *        LECTURA INICIAL DE CURSOR.                               00111731
+              PERFORM 8400-I-LEER-CURSOR                                00111831
+                 THRU 8400-F-LEER-CURSOR                                00111931
+                                                                        00112031
+      *        CARGO LAS VARIABLES DE CORTE MAYOR Y MENOR.              00112131
+      *        PARA QUE ENTRE A PROCESAR.                               00112231
+              MOVE WT-TIPDOC TO WS-TIPDOC-ANT                           00112331
+              MOVE WT-SEXO   TO WS-SEXO-ANT                             00112431
+           ELSE                                                         00112514
+              DISPLAY '*********************************'               00112614
+              DISPLAY '* ERROR EN APERTURA DE ARCHIVOS *'               00112714
+              DISPLAY '* APERTURA DE CURSOR CANCELADA  *'               00112814
+              DISPLAY '*********************************'               00112914
+           END-IF                                                       00113014
+           .                                                            00113331
        1000-F-INICIO.   EXIT.                                           00114607
                                                                         00115007
       **************************************                            00120602
@@ -410,8 +316,6 @@
                                                                         00132022
       *    VOY A LEER EL SIGUIENTE REGISTRO QUE ACTUALIZA CLAVES        00137222
       *    MAYOR Y MENOR ACTUALES Y VUELVE A PROCESAR.                  00137322
-      *     PERFORM 8050-I-LEER-ENTRADA                                 00137422
-      *        THRU 8050-F-LEER-ENTRADA                                 00137522
             PERFORM 8400-I-LEER-CURSOR                                  00137622
                THRU 8400-F-LEER-CURSOR                                  00137722
             .                                                           00139017
@@ -455,37 +359,28 @@
                      EVALUATE WS-SEXO-ANT                               00153215
                      WHEN 'F'                                           00153315
                              MOVE WS-SUB-TOT-SEXO TO WS-CANT-DU-F       00153419
-      *                      DISPLAY '>>> CANTIDAD DU-F = ' WS-CANT-DU-F00153527
                      WHEN 'M'                                           00153615
                              MOVE WS-SUB-TOT-SEXO TO WS-CANT-DU-M       00153719
-      *                      DISPLAY '>>> CANTIDAD DU-M = ' WS-CANT-DU-M00153827
                      WHEN 'O'                                           00153915
                              MOVE WS-SUB-TOT-SEXO TO WS-CANT-DU-O       00154019
-      *                      DISPLAY '>>> CANTIDAD DU-O = ' WS-CANT-DU-O00154127
                      END-EVALUATE                                       00154215
            WHEN 'PA'                                                    00154315
                      EVALUATE WS-SEXO-ANT                               00154415
                      WHEN 'F'                                           00154515
                              MOVE WS-SUB-TOT-SEXO TO WS-CANT-PA-F       00154619
-      *                      DISPLAY '>>> CANTIDAD PA-F = ' WS-CANT-PA-F00154727
                      WHEN 'M'                                           00154815
                              MOVE WS-SUB-TOT-SEXO TO WS-CANT-PA-M       00154919
-      *                      DISPLAY '>>> CANTIDAD PA-M = ' WS-CANT-PA-M00155027
                      WHEN 'O'                                           00155115
                               MOVE WS-SUB-TOT-SEXO TO WS-CANT-PA-O      00155215
-      *                      DISPLAY '>>> CANTIDAD PA-O = ' WS-CANT-PA-O00155327
                      END-EVALUATE                                       00155415
            WHEN 'PE'                                                    00155515
                      EVALUATE WS-SEXO-ANT                               00155615
                      WHEN 'F'                                           00155715
                              MOVE WS-SUB-TOT-SEXO TO WS-CANT-PE-F       00155819
-      *                      DISPLAY '>>> CANTIDAD PE-F = ' WS-CANT-PE-F00155927
                      WHEN 'M'                                           00156015
                              MOVE WS-SUB-TOT-SEXO TO WS-CANT-PE-M       00156119
-      *                      DISPLAY '>>> CANTIDAD PE-M = ' WS-CANT-PE-M00156227
                      WHEN 'O'                                           00156315
                              MOVE WS-SUB-TOT-SEXO TO WS-CANT-PE-O       00156419
-      *                      DISPLAY '>>> CANTIDAD PE-O = ' WS-CANT-PE-O00156527
                      END-EVALUATE                                       00156615
            END-EVALUATE                                                 00156715
       *    Y RESETEO EN 1 EL CONTADOR PARCIAL                           00156915
@@ -509,20 +404,6 @@
            MOVE  WT-FECNAC(9:2)  TO REG-FECNAC-DD                       00167302
            MOVE  WT-SEXO         TO REG-CLI-SEXO.                       00167402
        2900-F-ARMAR-REG-SALIDA-CLI. EXIT.                               00167502
-                                                                        00167602
-      ***********************************************************       00167702
-      *  ARMARDO DE SALIDA REGISTRO DE CUENTA                   *       00167802
-      ***********************************************************       00167902
-       2950-I-ARMAR-REG-SALIDA-CTA.                                     00168002
-           MOVE  WS-TIPCUEN      TO REG-CTA-TIPCUEN                     00168102
-           MOVE  WS-NROCUEN      TO REG-CTA-NROCUEN                     00168202
-           MOVE  WS-SUCUEN       TO REG-CTA-SUCUEN                      00168302
-           MOVE  WS-NROCLI       TO REG-CTA-NROCLI                      00168402
-           MOVE  WS-SALDO        TO REG-CTA-SALDO                       00168502
-           MOVE  WS-FECSAL(1:4)  TO REG-FECSAL-AAAA                     00168602
-           MOVE  WS-FECSAL(6:2)  TO REG-FECSAL-MM                       00168702
-           MOVE  WS-FECSAL(9:2)  TO REG-FECSAL-DD.                      00168802
-       2950-F-ARMAR-REG-SALIDA-CTA. EXIT.                               00168902
                                                                         00169002
       **************************************                            00169102
       *  GRABAR LISTADO ERRORES            *                            00169202
@@ -536,11 +417,8 @@
                    THRU 9000-F-GRABAR-TITULOS                           00170002
            END-IF                                                       00170102
                                                                         00170219
-      *    DISPLAY '>>>REG A GRABAR = ' WS-REG-SALIDA-CLI               00170328
            WRITE REG-SALIDA FROM WS-REG-SALIDA-CLI  AFTER 1             00170412
                                                                         00170600
-      *    WRITE REG-SALIDA FROM WS-REG-SALIDA-CTA  AFTER 1             00170812
-                                                                        00171000
            PERFORM 9996-I-VALIDAR-FS-ACTUAL                             00171102
               THRU 9996-F-VALIDAR-FS-ACTUAL                             00171202
                                                                         00171300
@@ -556,66 +434,14 @@
                                                                         00183802
            MOVE '8000-I-APERTURA-ARCHIVOS' TO WS-PARRAFO                00183902
                                                                         00184002
-           OPEN INPUT  ENTRADA.                                         00184102
-           MOVE FS-ENTRADA TO FS-ACTUAL                                 00184202
-           MOVE 'ARCHIVO ENTRADA' TO WS-ARCHIVO-DESC                    00184302
-           PERFORM 9996-I-VALIDAR-FS-ACTUAL                             00184402
-              THRU 9996-F-VALIDAR-FS-ACTUAL                             00184502
-                                                                        00184602
            OPEN OUTPUT SALIDA.                                          00184702
            MOVE FS-SALIDA  TO FS-ACTUAL                                 00184802
            MOVE 'ARCHIVO LISTADO' TO WS-ARCHIVO-DESC                    00184902
            PERFORM 9996-I-VALIDAR-FS-ACTUAL                             00185002
               THRU 9996-F-VALIDAR-FS-ACTUAL                             00185102
-                                                                        00185202
            .                                                            00186214
        8000-F-APERTURA-ARCHIVOS. EXIT.                                  00186302
                                                                         00186403
-      **************************************                            00186503
-      * LECTURA INICIAL DE ARCHIVO ENTRADA *                            00186603
-      **************************************                            00186703
-       8005-I-LECTURA-INICIAL.                                          00186803
-                                                                        00186903
-           MOVE '8005-I-LECTURA-INICIAL'  TO WS-PARRAFO                 00187003
-                                                                        00187103
-      *    READ  ENTRADA INTO WS-REG-ENTRADA.                           00187204
-           MOVE FS-ENTRADA TO FS-ACTUAL                                 00187303
-           MOVE 'LECTURA ENTRADA' TO WS-ARCHIVO-DESC                    00187403
-           IF FS-ACTUAL  IS NOT EQUAL '00'                              00187503
-              DISPLAY '*****************************************'       00187603
-              DISPLAY '*     *   FILE STATUS ERROR   *         *'       00187703
-              DISPLAY '*****************************************'       00187803
-              DISPLAY '*   EL ARCHIVO ENTRADA ESTA VACIO       *'       00187903
-              DISPLAY '*****************************************'       00188003
-              DISPLAY '* ERROR EN   : ' WS-PARRAFO                      00188103
-              DISPLAY '* ARCHIVO    : ' WS-ARCHIVO-DESC                 00188203
-              DISPLAY '* ERROR CODE : ' FS-ACTUAL                       00188303
-              DISPLAY '*****************************************'       00188403
-              MOVE 9999 TO RETURN-CODE                                  00188503
-              SET  WS-FIN-PROCESO TO TRUE                               00188603
-           ELSE                                                         00188703
-              CONTINUE                                                  00188803
-           END-IF.                                                      00188903
-                                                                        00189303
-       8005-F-LECTURA-INICIAL. EXIT.                                    00189403
-                                                                        00189503
-                                                                        00189603
-      **************************************                            00189703
-      * LECTURA  DE ARCHIVO ENTRADA        *                            00189803
-      **************************************                            00189903
-       8050-I-LEER-ENTRADA.                                             00190003
-                                                                        00190103
-           MOVE '8000-I-APERTURA-ARCHIVOS' TO WS-PARRAFO                00190203
-                                                                        00190303
-      *    READ  ENTRADA INTO WS-REG-ENTRADA.                           00190406
-           MOVE FS-ENTRADA TO FS-ACTUAL                                 00190503
-           MOVE 'LECTURA ENTRADA' TO WS-ARCHIVO-DESC                    00190603
-           PERFORM 9996-I-VALIDAR-FS-ACTUAL                             00190703
-              THRU 9996-F-VALIDAR-FS-ACTUAL                             00190803
-           .                                                            00190903
-                                                                        00191003
-       8050-F-LEER-ENTRADA. EXIT.                                       00191103
-                                                                        00191203
       **************************************                            00191303
       *  CIERRE DE ARCHIVOS                *                            00191403
       **************************************                            00191503
@@ -623,19 +449,12 @@
                                                                         00191703
            MOVE '8100-I-CIERRE-ARCHIVOS' TO WS-PARRAFO                  00191803
                                                                         00191903
-           CLOSE ENTRADA.                                               00192003
-           MOVE FS-ENTRADA TO FS-ACTUAL                                 00192103
-           MOVE 'ARCHIVO ENTRADA' TO WS-ARCHIVO-DESC                    00192203
-           PERFORM 9996-I-VALIDAR-FS-ACTUAL                             00192303
-              THRU 9996-F-VALIDAR-FS-ACTUAL                             00192403
-                                                                        00192503
            CLOSE SALIDA.                                                00192603
            MOVE FS-SALIDA  TO FS-ACTUAL                                 00192703
            MOVE 'ARCHIVO LISTADO' TO WS-ARCHIVO-DESC                    00192803
            PERFORM 9996-I-VALIDAR-FS-ACTUAL                             00192903
               THRU 9996-F-VALIDAR-FS-ACTUAL                             00193003
            .                                                            00193103
-                                                                        00193203
        8100-F-CIERRE-ARCHIVOS. EXIT.                                    00193303
                                                                         00193403
       ***********************************************************       00193503
@@ -713,17 +532,6 @@
                          :DCLTBCURCLI.WT-FECNAC,                        00200703
                          :DCLTBCURCLI.WT-SEXO                           00200803
                 END-EXEC                                                00200903
-                                                                        00201003
-      *             LEE TABLA DE CUENTAS                                00201103
-      *         EXEC SQL                                                00201207
-      *            FETCH C4                                             00201307
-      *            INTO  :DCLTBCURCTA.WS-TIPCUEN,                       00201407
-      *                  :DCLTBCURCTA.WS-NROCUEN,                       00201507
-      *                  :DCLTBCURCTA.WS-SUCUEN,                        00201607
-      *                  :DCLTBCURCTA.WS-NROCLI,                        00201707
-      *                  :DCLTBCURCTA.WS-SALDO,                         00201807
-      *                  :DCLTBCURCTA.WS-FECSAL                         00201907
-      *         END-EXEC                                                00202007
                                                                         00202103
            EVALUATE TRUE                                                00202203
            WHEN SQLCODE EQUAL ZEROS                                     00202303
@@ -764,12 +572,6 @@
            WRITE REG-SALIDA FROM WS-TITULO                              00205912
            WRITE REG-SALIDA FROM WS-LINEA                               00206012
                                                                         00206203
-      *    MOVE 'CONTROL DE INTEGRIDAD DE CUENTAS '                     00206412
-      *                            TO WS-TITULO-LEYENDA                 00206512
-      *    WRITE REG-SALIDA FROM WS-LINEA  AFTER PAGE                   00206612
-      *    WRITE REG-SALIDA FROM WS-TITULO                              00206712
-      *    WRITE REG-SALIDA FROM WS-LINEA                               00206812
-                                                                        00207003
            PERFORM 9996-I-VALIDAR-FS-ACTUAL                             00207103
               THRU 9996-F-VALIDAR-FS-ACTUAL                             00207203
                                                                         00207303
@@ -790,9 +592,6 @@
            WRITE REG-SALIDA FROM WS-SUBTITULO-TBCURCLI  AFTER 1         00208912
            WRITE REG-SALIDA FROM WS-LINEA                               00209012
                                                                         00209203
-      *    WRITE REG-SALIDA FROM WS-SUBTITULO-TBCURCTA  AFTER 1         00209412
-      *    WRITE REG-SALIDA FROM WS-LINEA                               00209512
-                                                                        00209703
            PERFORM 9996-I-VALIDAR-FS-ACTUAL                             00209803
               THRU 9996-F-VALIDAR-FS-ACTUAL.                            00209903
                                                                         00210003
@@ -846,7 +645,6 @@
            DISPLAY '**********************************************'.    00214807
            DISPLAY '*  TOTALES DE CONTROL DE PROCESO             *'.    00214907
            DISPLAY '**********************************************'.    00215007
-           DISPLAY 'TOTAL REG. ENTRADA LEIDOS: ' WS-ENTRADA-LEIDOS.     00215107
            DISPLAY 'TOTAL REG. ENTRADA ERROR : ' WS-ENTRADA-ERROR.      00215207
            DISPLAY 'TOTAL REG. CURSOR LEIDOS : ' WS-C1-LEIDOS.          00215307
            DISPLAY '----------------------------------------------'     00215407

@@ -201,16 +201,16 @@
       *  AREA DE COPYS                                       *          00085200
       ********************************************************          00085300
                                                                         00085400
-      **   AGREGAR ACA LA COPY DE ARCHIVO DE ENTRADA        **          00085500
-      **    COPY CPNOVCTA.                                              00085603
-       01  NOVEDADES-CUENTAS.                                           00085703
-           03 NOV-CTA-TIPCUEN          PIC X(2).                        00085803
-           03 NOV-CTA-NROCUEN          PIC S9(5)V USAGE COMP-3.         00085903
-           03 NOV-CTA-NROCLI           PIC S9(3)V USAGE COMP-3.         00086003
-           03 NOV-CTA-SALDO            PIC S9(5)V9(2) USAGE COMP-3.     00086103
+      *--> AGREGAR ACA LA COPY DE ARCHIVO DE ENTRADA  <--   **          00085522
+      *      COPY CPNOVCTA.                                             00085622
+       01  NOVEDADES-CUENTAS.                                           00085722
+           03 NOV-CTA-TIPCUEN          PIC X(2).                        00085822
+           03 NOV-CTA-NROCUEN          PIC S9(5)V USAGE COMP-3.         00085922
+           03 NOV-CTA-NROCLI           PIC S9(3)V USAGE COMP-3.         00086022
+           03 NOV-CTA-SALDO            PIC S9(5)V9(2) USAGE COMP-3.     00086122
                                                                         00086203
-      * TIPO DE MOVIMIENTO VALIDO 'CR' - 'DB'                           00086303
-           03 NOV-CTA-TIPMOV           PIC X(2).                        00086403
+      * TIPO DE MOVIMIENTO VALIDO 'CR' - 'DB'                           00086323
+           03 NOV-CTA-TIPMOV           PIC X(2).                        00086422
                                                                         00087000
       ********************************************************          00090400
       *  AREA DE COMUNICACION Y DEFINICION SQL DB2           *          00090500
